@@ -1,7 +1,6 @@
 package com.kolos.bookstore.controller;
 
 import com.kolos.bookstore.controller.command.Command;
-import com.kolos.bookstore.controller.command.CommandFactory;
 import com.kolos.bookstore.service.exception.DuplicateEmailException;
 import com.kolos.bookstore.service.exception.InvalidOrderStatusTransitionException;
 import com.kolos.bookstore.service.exception.NotFoundException;
@@ -20,12 +19,11 @@ import java.io.IOException;
 @WebServlet("/controller")
 public class FrontController extends HttpServlet {
 
-    private CommandFactory commandFactory;
 
     private void process(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             String command = req.getParameter("command");
-            Command commandInstance = commandFactory.getCommand(command);
+            Command commandInstance = AppListener.getContext().getBean(command, Command.class);
             String page = commandInstance.process(req);
             req.getRequestDispatcher(page).forward(req, resp);
         } catch (UserInputValidationException e) {
@@ -41,7 +39,7 @@ public class FrontController extends HttpServlet {
             req.setAttribute("dataError", e.getMessage());
             req.getRequestDispatcher("jsp/user/users.jsp").forward(req, resp);
         } catch (Exception e) {
-            Command commandInstance = commandFactory.getCommand("error");
+            Command commandInstance = AppListener.getContext().getBean("errorCommand", Command.class);
             String page = commandInstance.process(req);
             req.getRequestDispatcher(page).forward(req, resp);
         }
@@ -55,19 +53,5 @@ public class FrontController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         process(req, resp);
-    }
-
-    @Override
-    public void destroy() {
-        if (commandFactory != null) {
-            commandFactory.shatdown();
-        }
-        log.info("Controller destroyed");
-    }
-
-    @Override
-    public void init() {
-        commandFactory = CommandFactory.getInstance();
-        log.info("Controller initialized");
     }
 }
