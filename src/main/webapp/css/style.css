@@ -1,0 +1,248 @@
+/* Сброс стилей по умолчанию */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Основные стили для тела страницы */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Стили для заголовка */
+header {
+    background-color: #4CAF50;
+    padding: 20px 0;
+    text-align: center;
+}
+
+/* Стили для списка навигации */
+header ul {
+    list-style-type: none;
+}
+
+header ul li {
+    display: inline-block;
+    margin: 0 15px;
+}
+
+/* Стили для ссылок */
+header ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+header ul li a:hover {
+    text-decoration: underline;
+}
+
+/* Стили для контейнера таблицы */
+.table-container {
+    max-width: 80%; /* Устанавливаем максимальную ширину контейнера */
+    margin: 0 auto; /* Центрируем таблицу на странице */
+    padding: 20px 0; /* Отступ сверху и снизу */
+}
+
+/* Стили для таблицы */
+table {
+    width: auto; /* Убираем фиксированную ширину */
+    border-collapse: collapse;
+    font-size: 18px;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc; /* Общая граница таблицы */
+    margin: 0 auto; /* Центрируем таблицу внутри контейнера */
+}
+
+/* Стили для заголовков таблицы */
+table th {
+    background-color: #4977ad;
+    color: white;
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #ccc; /* Граница заголовков */
+}
+
+/* Стили для ячеек таблицы */
+table td {
+    padding: 5px;
+    text-align: left;
+    border: 1px solid #ccc; /* Граница ячеек */
+}
+
+/* Стили для четных строк */
+table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+/* Стили для строки при наведении */
+table tr:hover {
+    background-color: #ddd;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Основные стили для формы */
+form {
+    max-width: 600px; /* Ограничиваем максимальную ширину формы */
+    margin: 5px auto; /* Центрируем форму на странице */
+    padding: 5px;
+    background-color: #fff;
+    border-radius: 8px; /* Скругляем углы формы */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Добавляем тень для формы */
+    font-family: Arial, sans-serif;
+}
+
+/* Стили для каждой метки и поля ввода */
+form label {
+    display: block;
+    margin-bottom: 15px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Стили для полей ввода */
+form input[type="text"],
+form input[type="number"] {
+    width: 100%; /* Поля ввода занимают всю ширину родительского контейнера */
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+/* Стили для кнопки */
+
+
+/* Универсальные стили для всех кнопок */
+button,
+input[type="submit"],
+input[type="button"] {
+    display: inline-block;
+    padding: 10px 20px; /* Оптимальные отступы */
+    font-size: 16px; /* Универсальный размер шрифта */
+    background-color: #4CAF50; /* Основной цвет фона */
+    color: white; /* Цвет текста */
+    border: none; /* Убираем границу */
+    border-radius: 5px; /* Скругленные углы */
+    cursor: pointer; /* Указатель мыши при наведении */
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.3s ease; /* Плавный переход при наведении */
+    margin: 5px; /* Отступы вокруг кнопки */
+}
+
+button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover {
+    background-color: #45a049; /* Темный оттенок при наведении */
+}
+
+button:active,
+input[type="submit"]:active,
+input[type="button"]:active {
+    background-color: #3e8e41; /* Цвет при нажатии */
+}
+
+button:disabled,
+input[type="submit"]:disabled,
+input[type="button"]:disabled {
+    background-color: #ccc; /* Цвет для отключенных кнопок */
+    cursor: not-allowed; /* Указатель для отключенной кнопки */
+}
+
+/* Стили для формы с кнопкой и полем ввода */
+.form-inline {
+    display: flex;
+    align-items: center; /* Выравнивание по вертикали */
+}
+
+.form-inline input[type="number"] {
+    margin-right: 10px; /* Отступ справа от поля ввода */
+    width: 60px; /* Ширина поля ввода */
+}
+
+.form-inline input[type="submit"] {
+    padding: 8px 15px; /* Размеры кнопки */
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.form-inline input[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+.pagination {
+    text-align: center; /* Центрирование блока */
+    margin: 20px 0; /* Отступ сверху и снизу */
+}
+
+.pagination a {
+    text-decoration: none; /* Убираем подчеркивание ссылок */
+    color: #007bff; /* Цвет текста ссылок */
+    padding: 10px 15px; /* Внутренний отступ для кнопок */
+    margin: 0 5px; /* Расстояние между кнопками */
+    border: 1px solid #007bff; /* Граница вокруг кнопок */
+    border-radius: 5px; /* Скругление углов */
+    display: inline-block; /* Выравнивание ссылок по горизонтали */
+    transition: background-color 0.3s ease, color 0.3s ease; /* Плавный переход для фона и текста */
+}
+
+.pagination a:hover {
+    background-color: #007bff; /* Цвет фона при наведении */
+    color: #fff; /* Цвет текста при наведении */
+}
+
+.pagination .current-page {
+    padding: 10px 15px; /* Внутренний отступ для текущей страницы */
+    margin: 0 5px; /* Расстояние между кнопками */
+    font-weight: bold; /* Жирный текст для текущей страницы */
+    color: #333; /* Цвет текста текущей страницы */
+    border: 1px solid #ddd; /* Граница вокруг текущей страницы */
+    border-radius: 5px; /* Скругление углов */
+    background-color: #f9f9f9; /* Цвет фона текущей страницы */
+}
+
+
+.page-link {
+    text-decoration: none; /* Убрать подчеркивание */
+    padding: 10px 15px; /* Внутренний отступ для кнопок */
+    margin: 0 5px; /* Расстояние между кнопками */
+    border: 1px solid #007bff; /* Граница кнопок */
+    border-radius: 5px; /* Скругленные углы */
+    color: #007bff; /* Цвет текста */
+    background-color: #fff; /* Белый фон */
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.page-link:hover {
+    background-color: #007bff; /* Фон при наведении */
+    color: #fff; /* Цвет текста при наведении */
+}
+
+.current-page {
+    padding: 10px 15px;
+    margin: 0 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+
+
+
+
