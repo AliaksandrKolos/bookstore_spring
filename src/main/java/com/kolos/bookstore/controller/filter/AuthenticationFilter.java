@@ -26,16 +26,16 @@ public class AuthenticationFilter extends HttpFilter {
     }
 
     private static boolean isRequireAuthentication(String command) {
-        return !(command.equals("home")
-                || command.equals("books")
-                || command.equals("book")
-                || command.equals("user_login_form")
-                || command.equals("user_login")
-                || command.equals("user_registration_form")
-                || command.equals("user_registration")
-                || command.equals("cart")
-                || command.equals("addToCart")
-                || command.equals("change_lang")
-                || command.equals("books_search"));
+        return !(command.equals("homeCommand")
+                || command.equals("booksCommand")
+                || command.equals("bookCommand")
+                || command.equals("loginFormCommand")
+                || command.equals("loginCommand")
+                || command.equals("UserRegistrationForm")
+                || command.equals("userRegistrationCommand")
+                || command.equals("cartCommand")
+                || command.equals("addToCartCommand")
+                || command.equals("changeLanguageCommand")
+                || command.equals("booksSearchCommand"));
     }
 }

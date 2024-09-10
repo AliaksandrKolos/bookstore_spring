@@ -13,31 +13,31 @@ public enum CommandSecurityList {
     CommandSecurityList() {
 
         // admin level
-        securityConfig.put("user_edit", UserDto.Role.ADMIN);
-        securityConfig.put("user_edit_form", UserDto.Role.ADMIN);
-        securityConfig.put("user_delete", UserDto.Role.ADMIN);
+        securityConfig.put("userEditCommand", UserDto.Role.ADMIN);
+        securityConfig.put("userEditFormCommand", UserDto.Role.ADMIN);
+        securityConfig.put("userDeleteCommand", UserDto.Role.ADMIN);
+        securityConfig.put("userCreateFormCommand", UserDto.Role.ADMIN);
+        securityConfig.put("userCreateCommand", UserDto.Role.ADMIN);
+
 
         // manager level
-        securityConfig.put("book_create_form", UserDto.Role.MANAGER);
-        securityConfig.put("book_create", UserDto.Role.MANAGER);
-        securityConfig.put("book_edit", UserDto.Role.MANAGER);
-        securityConfig.put("book_edit_form", UserDto.Role.MANAGER);
-        securityConfig.put("book_delete", UserDto.Role.MANAGER);
-        securityConfig.put("users", UserDto.Role.MANAGER);
-        securityConfig.put("user_create", UserDto.Role.MANAGER);
-        securityConfig.put("user_create_form", UserDto.Role.MANAGER);
+        securityConfig.put("bookCreateFormCommand", UserDto.Role.MANAGER);
+        securityConfig.put("bookCreateCommand", UserDto.Role.MANAGER);
+        securityConfig.put("bookEditCommand", UserDto.Role.MANAGER);
+        securityConfig.put("bookEditFormCommand", UserDto.Role.MANAGER);
+        securityConfig.put("bookDeleteCommand", UserDto.Role.MANAGER);
+        securityConfig.put("usersCommand", UserDto.Role.MANAGER);
         securityConfig.put("orders", UserDto.Role.MANAGER);
-        securityConfig.put("change_order_status", UserDto.Role.MANAGER);
-        securityConfig.put("users_search_last_name", UserDto.Role.MANAGER);
+        securityConfig.put("orderChangeStatus", UserDto.Role.MANAGER);
+        securityConfig.put("userSearchByLastName", UserDto.Role.MANAGER);
 
         // user level
-        securityConfig.put("user_logOut", UserDto.Role.USER);
-        securityConfig.put("order", UserDto.Role.USER);
-        securityConfig.put("orders_user", UserDto.Role.USER);
-        securityConfig.put("order_cancel", UserDto.Role.USER);
-        securityConfig.put("create_order", UserDto.Role.USER);
-        securityConfig.put("user", UserDto.Role.USER);
-
+        securityConfig.put("logOutCommand", UserDto.Role.USER);
+        securityConfig.put("orderCommand", UserDto.Role.USER);
+        securityConfig.put("ordersUserCommand", UserDto.Role.USER);
+        securityConfig.put("orderCancelCommand", UserDto.Role.USER);
+        securityConfig.put("orderCreateCommand", UserDto.Role.USER);
+        securityConfig.put("userCommand", UserDto.Role.USER);
     }
 
     public boolean isCommandAllowedForRole(String command, UserDto.Role role) {
