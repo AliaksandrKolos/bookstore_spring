@@ -32,15 +32,11 @@ import com.kolos.bookstore.service.impl.UserServiceImpl;
 import com.kolos.bookstore.service.mapper.ServiceMapperImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
+@PropertySource("classpath:/application.properties")
 @Configuration
 public class AppConfig {
-
-    private static final String DB_URL = "db.url";
-    private static final String DB_PASSWORD = "db.password";
-    private static final String DB_USER = "db.user";
-    private static final String DB_DRIVER = "db.driver";
-    private static final String DB_POOL_SIZE = "db.poolSize";
 
 
 //    dataBase
@@ -52,14 +48,7 @@ public class AppConfig {
 
     @Bean
     public ConnectionManager connectionManager(ConfigurationManager configurationManager) {
-        String url = configurationManager.getProperty(DB_URL);
-        String password = configurationManager.getProperty(DB_PASSWORD);
-        String user = configurationManager.getProperty(DB_USER);
-        String driver = configurationManager.getProperty(DB_DRIVER);
-        ConnectionManagerImpl connectionManager = new ConnectionManagerImpl(url, password, user, driver);
-        int poolSize = Integer.parseInt(configurationManager.getProperty(DB_POOL_SIZE));
-        connectionManager.setPoolSize(poolSize);
-        return connectionManager;
+        return new ConnectionManagerImpl(configurationManager);
     }
 
 //    dao
@@ -310,31 +299,3 @@ public class AppConfig {
         return new ChangeLanguageCommand();
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
