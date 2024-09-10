@@ -23,13 +23,13 @@
 <jsp:include page="../navbar.jsp"/>
 <h1>${orders.size() > 0 ? 'Your orders:' : 'No orders yet'}</h1>
 <div class="pagination">
-    <a href="controller?command=orders&page=1"><fmt:message key="orders.first"/></a>
-    <a href="controller?command=orders&page=<c:out value="${page <= 1 ? 1 : page - 1}"/>"><fmt:message
+    <a href="controller?command=ordersCommand&page=1"><fmt:message key="orders.first"/></a>
+    <a href="controller?command=ordersCommand&page=<c:out value="${page <= 1 ? 1 : page - 1}"/>"><fmt:message
             key="orders.prev"/></a>
     <span class="current-page"><c:out value="${page}"/></span>
-    <a href="controller?command=orders&page=<c:out value="${totalPages > page ? page + 1 : page}"/>"><fmt:message
+    <a href="controller?command=ordersCommand&page=<c:out value="${totalPages > page ? page + 1 : page}"/>"><fmt:message
             key="orders.next"/></a>
-    <a href="controller?command=orders&page=<c:out value="${totalPages}"/>"><fmt:message key="orders.last"/></a>
+    <a href="controller?command=ordersCommand&page=<c:out value="${totalPages}"/>"><fmt:message key="orders.last"/></a>
 </div>
 
 <table>
@@ -44,7 +44,7 @@
     <c:forEach items="${orders}" var="order" varStatus="counter">
         <tr>
             <td><c:out value="${counter.count}"/></td>
-            <td><a href="controller?command=order&id=<c:out value="${order.id}"/>"><c:out value="${order.id}"/></a></td>
+            <td><a href="controller?command=orderCommand&id=<c:out value="${order.id}"/>"><c:out value="${order.id}"/></a></td>
             <td><c:out value="${order.status}"/></td>
             <td><c:out value="${order.user.email}"/></td>
             <td><c:out value="${order.cost}"/></td>
@@ -63,7 +63,7 @@
                             CANCELLED
                         </option>
                     </select>
-                    <input type="hidden" name="command" value="change_order_status"/>
+                    <input type="hidden" name="command" value="orderChangeStatus"/>
                 </form>
             </td>
         </tr>

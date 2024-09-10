@@ -11,7 +11,7 @@
 </c:if>
 <c:if test="${sessionScope.lang =='de'}">
     <fmt:setBundle basename="messages_de"/>
-    <fmt:setLocale value="ru"/>
+    <fmt:setLocale value="de"/>
 </c:if>
 <html>
 <head>
@@ -56,14 +56,14 @@
 
             <c:if test="${sessionScope.user != null}">
                 <td>
-                    <form method="post" action="controller?command=create_order">
+                    <form method="post" action="controller?command=orderCreateCommand">
                         <input type="submit" value="<fmt:message key="cart.create_order"/>">
                     </form>
                 </td>
             </c:if>
             <c:if test="${sessionScope.user == null}">
                 <td>
-                    <form method="post" action="controller?command=user_login_form">
+                    <form method="post" action="controller?command=loginFormCommand">
                         <input type="submit" value="<fmt:message key="cart.create_order"/>">
                     </form>
                 </td>

@@ -11,7 +11,7 @@
 </c:if>
 <c:if test="${sessionScope.lang =='de'}">
     <fmt:setBundle basename="messages_de"/>
-    <fmt:setLocale value="ru"/>
+    <fmt:setLocale value="de"/>
 </c:if>
 <!DOCTYPE html>
 <html>
@@ -26,13 +26,13 @@
 
 
 <div class="pagination">
-    <a href="controller?command=orders_user&id=${sessionScope.user.id}&page=1"><fmt:message key="orders.first"/></a>
-    <a href="controller?command=orders_user&id=${sessionScope.user.id}&page=${page <= 1 ? 1 : page - 1}"><fmt:message
+    <a href="controller?command=ordersUserCommand&id=${sessionScope.user.id}&page=1"><fmt:message key="orders.first"/></a>
+    <a href="controller?command=ordersUserCommand&id=${sessionScope.user.id}&page=${page <= 1 ? 1 : page - 1}"><fmt:message
             key="orders.prev"/></a>
     <span class="current-page"><c:out value="${page}"/></span>
-    <a href="controller?command=orders_user&id=${sessionScope.user.id}&page=${totalPages > page ? page + 1 : page}"><fmt:message
+    <a href="controller?command=ordersUserCommand&id=${sessionScope.user.id}&page=${totalPages > page ? page + 1 : page}"><fmt:message
             key="orders.next"/></a>
-    <a href="controller?command=orders_user&id=${sessionScope.user.id}&page=${totalPages}"><fmt:message
+    <a href="controller?command=ordersUserCommand&id=${sessionScope.user.id}&page=${totalPages}"><fmt:message
             key="orders.last"/></a>
 </div>
 
@@ -48,11 +48,11 @@
     <c:forEach items="${orders}" var="order" varStatus="counter">
         <tr>
             <td><c:out value="${counter.count}"/></td>
-            <td><a href="controller?command=order&id=<c:out value="${order.id}"/>"><c:out value="${order.id}"/></a></td>
+            <td><a href="controller?command=orderCommand&id=<c:out value="${order.id}"/>"><c:out value="${order.id}"/></a></td>
             <td><c:out value="${order.status}"/></td>
             <td><c:out value="${order.cost}"/></td>
             <td>
-                <form method="post" action="controller?command=order_cancel&id=<c:out value="${order.id}"/>">
+                <form method="post" action="controller?command=orderCancelCommand&id=<c:out value="${order.id}"/>">
                     <input type="submit" value="<fmt:message key="ordersUser.order_cancel"/>">
                 </form>
             </td>

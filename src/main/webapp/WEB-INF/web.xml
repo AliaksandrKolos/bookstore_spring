@@ -24,7 +24,7 @@
     </filter-mapping>
     
     <error-page>
-        <location>/controller?command=error</location>
+        <location>/controller?command=errorCommand</location>
     </error-page>
 
 </web-app>

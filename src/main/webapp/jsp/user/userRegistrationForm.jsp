@@ -11,7 +11,7 @@
 </c:if>
 <c:if test="${sessionScope.lang =='de'}">
     <fmt:setBundle basename="messages_de"/>
-    <fmt:setLocale value="ru"/>
+    <fmt:setLocale value="de"/>
 </c:if>
 <html>
 <head>
@@ -23,7 +23,7 @@
 <jsp:include page="../navbar.jsp"/>
 
 <h1><fmt:message key="userRegistrationForm.header"/></h1>
-<form method="post" action=controller?command=user_registration>
+<form method="post" action=controller?command=userRegistrationCommand>
     <input type="text" placeholder="<fmt:message key="userRegistrationForm.email"/>" name="email">
     <input name="password" type="text" placeholder="<fmt:message key="userRegistrationForm.password"/>" minlength="1" required>
     <button type="submit" class="btn"><fmt:message key="userRegistrationForm.registration_button"/></button>

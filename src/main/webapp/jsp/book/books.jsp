@@ -6,11 +6,11 @@
     <fmt:setBundle basename="messages"/>
     <fmt:setLocale value="${sessionScope.lang}"/>
 </c:if>
-<c:if test="${sessionScope.lang == 'ru'}">
+<c:if test="${sessionScope.lang =='ru'}">
     <fmt:setBundle basename="messages_ru"/>
     <fmt:setLocale value="ru"/>
 </c:if>
-<c:if test="${sessionScope.lang == 'de'}">
+<c:if test="${sessionScope.lang =='de'}">
     <fmt:setBundle basename="messages_de"/>
     <fmt:setLocale value="de"/>
 </c:if>
@@ -40,12 +40,12 @@
 
     <div class="pagination">
         <!-- Кнопка "First" -->
-        <a href="controller?command=books_search&page=1&page_size=${param.page_size}&search=${param.search}">
+        <a href="controller?command=booksSearchCommand&page=1&page_size=${param.page_size}&search=${param.search}">
             <fmt:message key="books.first"/>
         </a>
 
         <!-- Кнопка "Prev" -->
-        <a href="controller?command=books_search&page=${page <= 1 ? 1 : page - 1}&page_size=${param.page_size}&search=${param.search}">
+        <a href="controller?command=booksSearchCommand&page=${page <= 1 ? 1 : page - 1}&page_size=${param.page_size}&search=${param.search}">
             <fmt:message key="books.prev"/>
         </a>
 
@@ -53,13 +53,13 @@
         <c:out value="${page}"/>
 
         <!-- Кнопка "Next" -->
-        <a href="controller?command=books_search&page=${page < totalPages ? page + 1 : totalPages}&page_size=${param.page_size}&search=${param.search}">
+        <a href="controller?command=booksSearchCommand&page=${page < totalPages ? page + 1 : totalPages}&page_size=${param.page_size}&search=${param.search}">
             <fmt:message key="books.next"/>
         </a>
 
 
         <!-- Кнопка "Last" -->
-        <a href="controller?command=books_search&page=${totalPages}&page_size=${param.page_size}&search=${param.search}">
+        <a href="controller?command=booksSearchCommand&page=${totalPages}&page_size=${param.page_size}&search=${param.search}">
             <fmt:message key="books.last"/>
         </a>
     </div>
@@ -80,19 +80,19 @@
         <c:forEach items="${books}" var="book">
             <tr>
                 <td><c:out value="${book.id}"/></td>
-                <td><a href="controller?command=book&id=<c:out value="${book.id}"/>"><c:out value="${book.title}"/></a></td>
+                <td><a href="controller?command=bookCommand&id=<c:out value="${book.id}"/>"><c:out value="${book.title}"/></a></td>
                 <td><c:out value="${book.author}"/></td>
                 <td>
-                    <form method="post" action="${pageContext.request.contextPath}/controller?command=addToCart" class="form-inline">
+                    <form method="post" action="${pageContext.request.contextPath}/controller?command=bookEditFormCommand" class="form-inline">
                         <input type="hidden" name="bookId" value="<c:out value="${book.id}"/>">
                         <input type="number" name="quantity" value="1" min="1">
                         <input type="submit" value="<fmt:message key='books.add_cart'/>">
                     </form>
                 </td>
                 <c:if test="${sessionScope.user.role eq 'MANAGER' || sessionScope.user.role eq 'ADMIN'}">
-                    <td><a href="controller?command=book_edit_form&id=<c:out value="${book.id}"/>">Edit</a></td>
+                    <td><a href="controller?command=bookEditFormCommand&id=<c:out value="${book.id}"/>">Edit</a></td>
                     <td>
-                        <form method="post" action="controller?command=book_delete&id=<c:out value="${book.id}"/>">
+                        <form method="post" action="controller?command=bookDeleteCommand&id=<c:out value="${book.id}"/>">
                             <input type="submit" value="<fmt:message key='books.button_delete'/>">
                         </form>
                     </td>

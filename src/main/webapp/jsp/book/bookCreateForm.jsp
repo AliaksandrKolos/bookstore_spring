@@ -11,7 +11,7 @@
 </c:if>
 <c:if test="${sessionScope.lang =='de'}">
     <fmt:setBundle basename="messages_de"/>
-    <fmt:setLocale value="ru"/>
+    <fmt:setLocale value="de"/>
 </c:if>
 <head>
     <title><fmt:message key="bookCreateForm.title"/></title>
@@ -22,7 +22,7 @@
 <jsp:include page="../navbar.jsp"/>
 
 <h1><fmt:message key="bookCreateForm.header"/></h1>
-<form method="post" action="controller?command=book_create">
+<form method="post" action="controller?command=bookCreateCommand">
     <input type="text" placeholder="<fmt:message key="bookCreateForm.title"/>" name="title">
     <input type="text" placeholder="<fmt:message key="bookCreateForm.author"/>" name="author">
     <input type="text" placeholder="<fmt:message key="bookCreateForm.isbn"/>" name="isbn">

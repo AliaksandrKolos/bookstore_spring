@@ -11,7 +11,7 @@
 </c:if>
 <c:if test="${sessionScope.lang =='de'}">
     <fmt:setBundle basename="messages_de"/>
-    <fmt:setLocale value="ru"/>
+    <fmt:setLocale value="de"/>
 </c:if>
 <html>
 <head>
@@ -23,7 +23,7 @@
 <jsp:include page="../navbar.jsp"/>
 
 <h1><fmt:message key="userEditForm.header"/></h1>
-<form method="post" action=controller?command=user_edit>
+<form method="post" action=controller?command=userEditCommand>
 
     <input name="id" type="hidden" value="${requestScope.user.id}">
     <input type="text" placeholder="<fmt:message key="userEditForm.firstName"/>" name="firstName" value="<c:out value="${user.firstName}"/>">

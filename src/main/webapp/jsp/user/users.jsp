@@ -1,10 +1,3 @@
-
-
-
-
-
-
-
 <%@page language="java" contentType="text/html; charset=UTF-8"
         pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -19,7 +12,7 @@
 </c:if>
 <c:if test="${sessionScope.lang =='de'}">
     <fmt:setBundle basename="messages_de"/>
-    <fmt:setLocale value="ru"/>
+    <fmt:setLocale value="de"/>
 </c:if>
 <html>
 <head>
@@ -48,17 +41,17 @@
 
 
     <div class="pagination">
-        <a href="controller?command=users&page=1&page_size=<c:out value='${param.page_size}'/>'/>">
+        <a href="controller?command=usersCommand&page=1&page_size=<c:out value='${param.page_size}'/>'/>">
             <fmt:message key="users.first"/>
         </a>
-        <a href="controller?command=users&page=<c:out value='${page <= 1 ? 1 : page - 1}'/>&page_size=<c:out value='${param.page_size}'/>">
+        <a href="controller?command=usersCommand&page=<c:out value='${page <= 1 ? 1 : page - 1}'/>&page_size=<c:out value='${param.page_size}'/>">
             <fmt:message key="users.prev"/>
         </a>
         <span class="current-page"><c:out value="${page}"/></span>
-        <a href="controller?command=users&page=<c:out value='${totalPages > page ? page + 1 : page}'/>&page_size=<c:out value='${param.page_size}'/>">
+        <a href="controller?command=usersCommand&page=<c:out value='${totalPages > page ? page + 1 : page}'/>&page_size=<c:out value='${param.page_size}'/>">
             <fmt:message key="users.next"/>
         </a>
-        <a href="controller?command=users&page=<c:out value='${totalPages}'/>&page_size=<c:out value='${param.page_size}'/>">
+        <a href="controller?command=usersCommand&page=<c:out value='${totalPages}'/>&page_size=<c:out value='${param.page_size}'/>">
             <fmt:message key="users.last"/>
         </a>
     </div>
@@ -83,10 +76,10 @@
                 <td><c:out value=""/>${user.id}</td>
                 <td><c:out value="${user.firstName}"/></td>
                 <td><c:out value="${user.lastName}"/></td>
-                <td><a href="controller?command=user&id=<c:out value="${user.id}"/>"><c:out value=""/>${user.email}</a></td>
-                <td><a href="controller?command=user_edit_form&id=<c:out value="${user.id}"/>"><fmt:message key="users.edit"/></a></td>
+                <td><a href="controller?command=userCommand&id=<c:out value="${user.id}"/>"><c:out value=""/>${user.email}</a></td>
+                <td><a href="controller?command=userEditFormCommand&id=<c:out value="${user.id}"/>"><fmt:message key="users.edit"/></a></td>
                 <td>
-                    <form method="post" action="controller?command=user_delete&id=<c:out value="${user.id}"/>">
+                    <form method="post" action="controller?command=userDeleteCommand&id=<c:out value="${user.id}"/>">
                         <input type="submit" value="<fmt:message key="users.delete"/>">
                     </form>
                 </td>
