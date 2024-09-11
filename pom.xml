@@ -20,10 +20,26 @@
         <jakarta.servlet.jsp-api.version>4.0.0</jakarta.servlet.jsp-api.version>
         <jakarta.servlet.jsp.jstl.version>3.0.1</jakarta.servlet.jsp.jstl.version>
         <lombok.version>1.18.34</lombok.version>
+        <org.springframework.version>6.1.12</org.springframework.version>
+        <jakarta.annotation.version>3.0.0</jakarta.annotation.version>
     </properties>
 
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${org.springframework.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <version>${jakarta.annotation.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
