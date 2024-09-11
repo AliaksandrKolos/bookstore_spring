@@ -5,11 +5,13 @@ import com.kolos.bookstore.data.entity.User;
 import com.kolos.bookstore.data.mapper.DataMapper;
 import com.kolos.bookstore.data.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
+@Repository
 public class UserRepositoryImpl implements UserRepository {
 
     private final UserDao userDao;

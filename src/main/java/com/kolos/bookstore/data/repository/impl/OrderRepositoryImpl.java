@@ -15,6 +15,7 @@ import com.kolos.bookstore.data.mapper.DataMapper;
 import com.kolos.bookstore.data.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
+@Repository
 public class OrderRepositoryImpl implements OrderRepository {
 
     private final OrderDao orderDao;

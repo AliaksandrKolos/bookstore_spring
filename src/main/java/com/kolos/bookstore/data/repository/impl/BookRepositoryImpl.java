@@ -6,11 +6,13 @@ import com.kolos.bookstore.data.entity.Book;
 import com.kolos.bookstore.data.mapper.DataMapper;
 import com.kolos.bookstore.data.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
+@Repository
 public class BookRepositoryImpl implements BookRepository {
 
     private final BookDao bookDao;
