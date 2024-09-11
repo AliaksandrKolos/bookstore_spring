@@ -6,7 +6,9 @@ import com.kolos.bookstore.service.dto.UserDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
 
+@Controller("user_login")
 @RequiredArgsConstructor
 public class LoginCommand implements Command {
 

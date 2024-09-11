@@ -5,10 +5,12 @@ import com.kolos.bookstore.service.BookService;
 import com.kolos.bookstore.service.dto.BookDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
 
 import java.math.BigDecimal;
 
 @RequiredArgsConstructor
+@Controller("book_edit")
 public class BookEditCommand implements Command {
 
     private final BookService bookService;

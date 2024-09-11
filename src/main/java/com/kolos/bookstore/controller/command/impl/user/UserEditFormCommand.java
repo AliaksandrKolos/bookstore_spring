@@ -5,7 +5,9 @@ import com.kolos.bookstore.service.UserService;
 import com.kolos.bookstore.service.dto.UserDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
 
+@Controller("user_edit_form")
 @RequiredArgsConstructor
 public class UserEditFormCommand implements Command {
 

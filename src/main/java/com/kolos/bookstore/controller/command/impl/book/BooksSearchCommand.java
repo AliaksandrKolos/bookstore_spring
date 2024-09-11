@@ -7,12 +7,14 @@ import com.kolos.bookstore.service.dto.PageableDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Controller;
 
 import java.util.List;
 
 import static com.kolos.bookstore.controller.command.impl.PagingUtil.getPageable;
 @Slf4j
 @RequiredArgsConstructor
+@Controller("books_search")
 public class BooksSearchCommand implements Command {
 
     private final BookService bookService;

@@ -6,10 +6,12 @@ import com.kolos.bookstore.service.dto.UserDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Controller;
 
 
 @Slf4j
 @RequiredArgsConstructor
+@Controller("user_create")
 public class UserCreateCommand implements Command {
 
     private final UserService userService;

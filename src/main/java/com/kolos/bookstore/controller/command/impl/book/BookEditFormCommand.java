@@ -6,8 +6,10 @@ import com.kolos.bookstore.service.dto.BookDto;
 import com.kolos.bookstore.service.dto.UserDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
 
 @RequiredArgsConstructor
+@Controller("book_edit_form")
 public class BookEditFormCommand implements Command {
 
     private final BookService bookService;

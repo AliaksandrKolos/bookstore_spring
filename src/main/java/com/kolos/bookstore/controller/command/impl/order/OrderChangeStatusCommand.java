@@ -5,9 +5,11 @@ import com.kolos.bookstore.service.OrderService;
 import com.kolos.bookstore.service.dto.OrderStatusUpdateDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
 
 @RequiredArgsConstructor
-public class OrderChangeStatus implements Command {
+@Controller("change_order_status")
+public class OrderChangeStatusCommand implements Command {
 
     private final OrderService orderService;
 

@@ -7,11 +7,13 @@ import com.kolos.bookstore.service.dto.OrderDto;
 import com.kolos.bookstore.service.dto.PageableDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
 
 import java.util.List;
 
 
 @RequiredArgsConstructor
+@Controller("orders_user")
 public class OrdersUserCommand implements Command {
 
     private final OrderService orderService;

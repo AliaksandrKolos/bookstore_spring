@@ -6,7 +6,9 @@ import com.kolos.bookstore.service.dto.UserDto;
 import com.kolos.bookstore.service.dto.UserRegistrationDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
 
+@Controller("user_registration")
 @RequiredArgsConstructor
 public class UserRegistrationCommand implements Command {
 

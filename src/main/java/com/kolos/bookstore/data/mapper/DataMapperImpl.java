@@ -7,7 +7,9 @@ import com.kolos.bookstore.data.entity.Book;
 import com.kolos.bookstore.data.entity.Order;
 import com.kolos.bookstore.data.entity.OrderItem;
 import com.kolos.bookstore.data.entity.User;
+import org.springframework.stereotype.Component;
 
+@Component
 public class DataMapperImpl implements DataMapper{
 
 

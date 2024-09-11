@@ -5,8 +5,10 @@ import com.kolos.bookstore.service.dto.OrderDto;
 import com.kolos.bookstore.service.OrderService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
 
 @RequiredArgsConstructor
+@Controller("order")
 public class OrderCommand implements Command {
 
     private final OrderService orderService;

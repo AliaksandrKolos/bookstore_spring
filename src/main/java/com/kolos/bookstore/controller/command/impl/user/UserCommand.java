@@ -5,8 +5,10 @@ import com.kolos.bookstore.service.UserService;
 import com.kolos.bookstore.service.dto.UserDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
 
 @RequiredArgsConstructor
+@Controller("user")
 public class UserCommand implements Command {
 
     private final UserService userService;

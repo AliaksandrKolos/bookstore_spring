@@ -7,9 +7,10 @@ import com.kolos.bookstore.service.UserService;
 import com.kolos.bookstore.service.dto.UserDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
 
 import java.util.List;
-
+@Controller("users")
 @RequiredArgsConstructor
 public class UsersCommand implements Command {
 
