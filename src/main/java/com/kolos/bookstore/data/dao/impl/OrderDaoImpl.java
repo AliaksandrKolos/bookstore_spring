@@ -7,6 +7,7 @@ import com.kolos.bookstore.data.entity.Order;
 import com.kolos.bookstore.service.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
+@Repository
 public class OrderDaoImpl implements OrderDao {
 
     private final ConnectionManager connectionManager;
