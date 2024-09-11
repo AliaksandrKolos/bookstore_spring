@@ -12,11 +12,13 @@ import com.kolos.bookstore.service.dto.PageableDto;
 import com.kolos.bookstore.service.exception.InvalidOrderStatusTransitionException;
 import com.kolos.bookstore.service.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 import static com.kolos.bookstore.service.util.PageUtil.getTotalPages;
 
+@Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 

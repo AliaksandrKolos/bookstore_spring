@@ -4,8 +4,10 @@ import com.kolos.bookstore.controller.command.Command;
 import com.kolos.bookstore.service.OrderService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
 
 @RequiredArgsConstructor
+@Controller("order_cancel")
 public class OrderCancelCommand implements Command {
 
     private final OrderService orderService;

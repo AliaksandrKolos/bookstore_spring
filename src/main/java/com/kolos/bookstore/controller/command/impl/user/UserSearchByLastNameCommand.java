@@ -6,14 +6,15 @@ import com.kolos.bookstore.service.dto.PageableDto;
 import com.kolos.bookstore.service.dto.UserDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
 
 import java.util.List;
 
 import static com.kolos.bookstore.controller.command.impl.PagingUtil.getPageable;
 
-
+@Controller("users_search_last_name")
 @RequiredArgsConstructor
-public class UserSearchByLastName implements Command {
+public class UserSearchByLastNameCommand implements Command {
 
     private final UserService userService;
 

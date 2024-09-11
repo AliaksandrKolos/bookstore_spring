@@ -8,10 +8,12 @@ import com.kolos.bookstore.service.DigestService;
 import com.kolos.bookstore.service.ServiceMapper;
 import com.kolos.bookstore.service.dto.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Service
 @RequiredArgsConstructor
 public class ServiceMapperImpl implements ServiceMapper {
 

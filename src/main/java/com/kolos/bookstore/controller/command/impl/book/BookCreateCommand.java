@@ -6,11 +6,13 @@ import com.kolos.bookstore.service.dto.BookDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Controller;
 
 import java.math.BigDecimal;
 
 @RequiredArgsConstructor
 @Slf4j
+@Controller("book_create")
 public class BookCreateCommand implements Command {
 
     private final BookService bookService;

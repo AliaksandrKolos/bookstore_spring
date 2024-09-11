@@ -4,10 +4,11 @@ import com.kolos.bookstore.controller.command.Command;
 import com.kolos.bookstore.service.BookService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
 
 @RequiredArgsConstructor
-public class
-BookDeleteCommand implements Command {
+@Controller("book_delete")
+public class BookDeleteCommand implements Command {
 
     private final BookService bookService;
 

@@ -4,7 +4,9 @@ import com.kolos.bookstore.controller.command.Command;
 import com.kolos.bookstore.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
 
+@Controller("user_delete")
 @RequiredArgsConstructor
 public class UserDeleteCommand implements Command {
 

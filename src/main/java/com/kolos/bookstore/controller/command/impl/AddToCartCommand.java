@@ -6,10 +6,11 @@ import com.kolos.bookstore.service.dto.BookDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
 
 import java.util.HashMap;
 import java.util.Map;
-
+@Controller("addToCart")
 @RequiredArgsConstructor
 public class AddToCartCommand implements Command {
 

@@ -10,6 +10,7 @@ import com.kolos.bookstore.service.dto.UserDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
+@Controller("create_order")
 public class OrderCreateCommand implements Command {
 
     private final OrderService orderService;

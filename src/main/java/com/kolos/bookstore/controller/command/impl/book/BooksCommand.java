@@ -6,12 +6,14 @@ import com.kolos.bookstore.service.BookService;
 import com.kolos.bookstore.service.dto.BookDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
 
 import java.util.List;
 
 import static com.kolos.bookstore.controller.command.impl.PagingUtil.getPageable;
 
 @RequiredArgsConstructor
+@Controller("books")
 public class BooksCommand implements Command {
 
     private final BookService bookService;
