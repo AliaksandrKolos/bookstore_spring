@@ -15,12 +15,14 @@ import com.kolos.bookstore.service.exception.NotFoundException;
 import com.kolos.bookstore.service.exception.UserInputValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.kolos.bookstore.service.util.PageUtil.getTotalPages;
 
+@Service
 @Slf4j
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {

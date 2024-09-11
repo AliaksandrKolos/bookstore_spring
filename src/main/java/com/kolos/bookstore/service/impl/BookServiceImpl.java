@@ -11,6 +11,7 @@ import com.kolos.bookstore.service.exception.AppException;
 import com.kolos.bookstore.service.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,7 @@ import static com.kolos.bookstore.service.util.PageUtil.getTotalPages;
 
 @Slf4j
 @RequiredArgsConstructor
+@Service
 public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
