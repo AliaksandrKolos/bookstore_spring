@@ -1,16 +1,19 @@
 package com.kolos.bookstore.data.dao.impl;
 
-import com.kolos.bookstore.data.connection.ConnectionManager;
 import com.kolos.bookstore.data.dao.OrderDao;
 import com.kolos.bookstore.data.dto.OrderDto;
-import com.kolos.bookstore.data.entity.Order;
-import com.kolos.bookstore.service.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.*;
-import java.util.ArrayList;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 
@@ -19,7 +22,6 @@ import java.util.List;
 @Repository
 public class OrderDaoImpl implements OrderDao {
 
-    private final ConnectionManager connectionManager;
 
     private static final String FIND_BY_ID = """
             SELECT o.id, o.user_id, s.status_name, o.cost AS totalCost
@@ -33,7 +35,7 @@ public class OrderDaoImpl implements OrderDao {
             FROM orders o
             JOIN status s ON o.status_id = s.id
             ORDER BY o.id
-            LIMIT ? OFFSET ?
+            LIMIT :limit OFFSET :offset
             """;
 
     private static final String CREATE_ORDER = """
@@ -44,10 +46,10 @@ public class OrderDaoImpl implements OrderDao {
 
     private static final String UPDATE_ORDER = """
             UPDATE orders
-            SET user_id = ?,
-                cost = ?,
-                status_id = (SELECT id FROM status WHERE status_name = ?)
-            WHERE id = ?
+            SET user_id = :user_id,
+                cost = :cost,
+                status_id = (SELECT id FROM status WHERE status_name = :status_name)
+            WHERE id = :id
             """;
 
     private static final String UPDATE_ORDER_STATUS_BY_ID = """
@@ -61,9 +63,9 @@ public class OrderDaoImpl implements OrderDao {
                 SELECT o.id, o.user_id, s.status_name, o.cost AS totalCost
                 FROM orders o
                 JOIN status s ON o.status_id = s.id
-                WHERE o.user_id = ?
+                WHERE o.user_id = :id
                 ORDER BY o.id
-                LIMIT ? OFFSET ?
+                LIMIT :limit OFFSET :offset
             """;
 
     private static final String COUNT_ALL = """
@@ -78,168 +80,85 @@ public class OrderDaoImpl implements OrderDao {
             """;
 
 
+    private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+
     @Override
     public OrderDto find(Long id) {
-        try (Connection connection = connectionManager.getConnection()) {
-            log.info("Connecting to the database...");
-            PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_ID);
-            preparedStatement.setLong(1, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                OrderDto dto = new OrderDto();
-                dto.setId(resultSet.getLong("id"));
-                dto.setStatus(OrderDto.Status.valueOf(resultSet.getString("status_name")));
-                dto.setCost(resultSet.getBigDecimal("totalCost"));
-                dto.setUserId(resultSet.getLong("user_id"));
-                return dto;
-            }
-        } catch (SQLException e) {
-            throw new NotFoundException("Failed to find order with id " + id, e);
-        }
-        return null;
+        return jdbcTemplate.queryForObject(FIND_BY_ID, this::mapRow, id);
     }
 
     @Override
     public List<OrderDto> findByUserId(Long id, int limit, int offset) {
-        try (Connection connection = connectionManager.getConnection()) {
-            log.info("Connecting to the database...");
-            PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_USER_ID);
-            preparedStatement.setLong(1, id);
-            preparedStatement.setInt(2, limit);
-            preparedStatement.setInt(3, offset);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            List<OrderDto> dtos = new ArrayList<>();
-            while (resultSet.next()) {
-                OrderDto dto = new OrderDto();
-                dto.setId(resultSet.getLong("id"));
-                dto.setStatus(OrderDto.Status.valueOf(resultSet.getString("status_name")));
-                dto.setCost(resultSet.getBigDecimal("totalCost"));
-                dto.setUserId(resultSet.getLong("user_id"));
-                dtos.add(dto);
-            }
-            return dtos;
-        } catch (SQLException e) {
-            throw new NotFoundException("Failed to find order with id " + id, e);
-        }
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("id", id);
+        params.addValue("limit", limit);
+        params.addValue("offset", offset);
+        return namedParameterJdbcTemplate
+                .queryForStream(FIND_BY_USER_ID, params, this::mapRow)
+                .toList();
     }
 
     @Override
     public int countAll() {
-        int totalCount = 0;
-        try (Connection connection = connectionManager.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(COUNT_ALL)) {
-            log.info("Connecting to the database and executing COUNT_ALL query...");
-            if (resultSet.next()) {
-                totalCount = resultSet.getInt("totalCount");
-            }
-        } catch (SQLException e) {
-            log.error("SQL exception occurred while counting books", e);
-            throw new NotFoundException("Cannot get Book count", e);
-        }
-        return totalCount;
+        return jdbcTemplate.queryForObject(COUNT_ALL, Integer.class);
     }
 
     @Override
-    public int countAll(String messages) {
-        int totalCount = 0;
-        try (Connection connection = connectionManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(COUNT_ALL_MESSAGE)) {
-            statement.setLong(1, Long.parseLong(messages));
-            log.info("Connecting to the database and executing COUNT_ALL query...");
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    totalCount = resultSet.getInt("totalCount");
-                }
-            }
-        } catch (SQLException e) {
-            log.error("SQL exception occurred while counting books", e);
-            throw new NotFoundException("Cannot get Book count", e);
-        }
-        return totalCount;
+    public int countAll(Long id) {
+        return jdbcTemplate.queryForObject(COUNT_ALL_MESSAGE, Integer.class, id);
     }
-
 
 
     @Override
     public List<OrderDto> findAll(int limit, int offset) {
-        try (Connection connection = connectionManager.getConnection()) {
-            log.info("Connecting to the database...");
-            PreparedStatement statement = connection.prepareStatement(FIND_ALL_ORDER_PAGES);
-            statement.setInt(1, limit);
-            statement.setInt(2, offset);
-            ResultSet resultSet = statement.executeQuery();
-            log.debug("Executing query...");
-            List<OrderDto> orders = new ArrayList<>();
-            while (resultSet.next()) {
-                OrderDto dto = mapToOrderDto(resultSet);
-                orders.add(dto);
-            }
-            return orders;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("limit", limit);
+        params.addValue("offset", offset);
+        return namedParameterJdbcTemplate
+                .queryForStream(FIND_ALL_ORDER_PAGES, params, this::mapRow)
+                .toList();
     }
 
 
     @Override
     public OrderDto save(OrderDto dto) {
-        try (Connection connection = connectionManager.getConnection()) {
-            log.info("Connecting to the database...");
-            PreparedStatement preparedStatement = connection.prepareStatement(CREATE_ORDER, Statement.RETURN_GENERATED_KEYS);
-
-            preparedStatement.setLong(1, dto.getUserId());
-            preparedStatement.setBigDecimal(2, dto.getCost());
-            preparedStatement.executeUpdate();
-
-            ResultSet resultSet = preparedStatement.getGeneratedKeys();
-            if (resultSet.next()) {
-                Long id = resultSet.getLong(1);
-                return find(id);
-            }
-        } catch (SQLException e) {
-            log.error("Error saving order", e);
-            throw new RuntimeException("Error creating order", e);
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(con -> {
+            PreparedStatement ps = con.prepareStatement(CREATE_ORDER, new String[]{"id"});
+            ps.setLong(1, dto.getUserId());
+            ps.setBigDecimal(2, dto.getCost());
+            return ps;
+        }, keyHolder);
+        Number key = keyHolder.getKey();
+        if (key != null) {
+            return find(key.longValue());
         }
-        throw new RuntimeException("Error creating order, no ID returned");
+        return null;
     }
 
 
     @Override
     public OrderDto update(OrderDto dto) {
-        try (Connection connection = connectionManager.getConnection()) {
-            log.info("Connecting to the database...");
-            PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_ORDER);
-            log.debug("Executing query...");
-            preparedStatement.setLong(1, dto.getUserId());
-            preparedStatement.setBigDecimal(2, dto.getCost());
-            preparedStatement.setString(3, dto.getStatus().name());
-            preparedStatement.setLong(4, dto.getId());
-            preparedStatement.executeUpdate();
-            return find(dto.getId());
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Couldn't update dto");
-        }
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("user_id", dto.getUserId());
+        params.addValue("cost", dto.getCost());
+        params.addValue("status_name", dto.getStatus().name());
+        params.addValue("id", dto.getId());
+        namedParameterJdbcTemplate.update(UPDATE_ORDER, params);
+        return find(dto.getId());
     }
 
 
     @Override
     public boolean delete(Long id) {
-        try (Connection connection = connectionManager.getConnection()) {
-            log.info("Connecting to the database...");
-            PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_ORDER_STATUS_BY_ID);
-            log.debug("Executing query...");
-            preparedStatement.setLong(1, id);
-            return preparedStatement.executeUpdate() == 1;
-        } catch (SQLException e) {
-            log.error("Error updating order status", e);
-            throw new RuntimeException("Error updating order status to CANCELLED", e);
-        }
+        int countRow = jdbcTemplate.update(UPDATE_ORDER_STATUS_BY_ID, id);
+        return countRow == 1;
     }
 
 
-    private static OrderDto mapToOrderDto(ResultSet resultSet) throws SQLException {
+    private OrderDto mapRow(ResultSet resultSet, int row) throws SQLException {
         OrderDto dto = new OrderDto();
         dto.setId(resultSet.getLong("id"));
         dto.setCost(resultSet.getBigDecimal("totalCost"));
