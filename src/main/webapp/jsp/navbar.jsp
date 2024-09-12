@@ -39,13 +39,11 @@
             <li><a href="controller?command=home"><fmt:message key="navbar.home"/></a></li>
             <li><a href="controller?command=user_logOut"><fmt:message key="navbar.log_out"/></a></li>
             <li><a href="controller?command=books&page=${param.page != null ? param.page : 1}&page_size=${param.page_size != null ? param.page_size : 5}"><fmt:message key="navbar.all_books"/></a></li>
-            <li><a href="controller?command=users&page=${param.page != null ? param.page : 1}&page_size=${param.page_size != null ? param.page_size : 5}"><fmt:message key="navbar.users"/></a></li>
-
-
-            <c:if test="${sessionScope.user.role.toString() == 'ADMIN'}">
+            <c:if test="${sessionScope.user.role.toString() == 'ADMIN' || sessionScope.user.role.toString() == 'MANAGER'}">
+                <li><a href="controller?command=users&page=${param.page != null ? param.page : 1}&page_size=${param.page_size != null ? param.page_size : 5}"><fmt:message key="navbar.users"/></a></li>
                 <li><a href="controller?command=book_create_form"><fmt:message key="navbar.add_book"/></a></li>
+                <li><a href="controller?command=orders&page=${param.page != null ? param.page : 1}&page_size=${param.page_size != null ? param.page_size : 5}"><fmt:message key="navbar.all_orders"/></a></li>
             </c:if>
-            <li><a href="controller?command=orders&page=${param.page != null ? param.page : 1}&page_size=${param.page_size != null ? param.page_size : 5}"><fmt:message key="navbar.all_orders"/></a></li>
             <li><a href="controller?command=cart"><fmt:message key="navbar.cart"/></a></li>
             <li><a href="controller?command=orders_user&id=${sessionScope.user.id}"><fmt:message key="navbar.my_order"/></a></li>
 
