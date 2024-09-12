@@ -99,8 +99,8 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public int countAllMassage(String messages) {
-        return orderDao.countAll(messages);
+    public int countAllMassage(Long id) {
+        return orderDao.countAll(id);
     }
 
 

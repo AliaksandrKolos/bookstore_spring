@@ -10,5 +10,5 @@ public interface OrderDao extends AbstractDao<Long, OrderDto> {
 
     int countAll();
 
-    int countAll(String messages);
+    int countAll(Long id);
 }
