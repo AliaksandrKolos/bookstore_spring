@@ -1,6 +1,7 @@
 package com.kolos.bookstore.data.repository.impl;
 
 import com.kolos.bookstore.data.dao.UserDao;
+import com.kolos.bookstore.data.dto.UserDto;
 import com.kolos.bookstore.data.entity.User;
 import com.kolos.bookstore.data.mapper.DataMapper;
 import com.kolos.bookstore.data.repository.UserRepository;
@@ -35,7 +36,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User findByEmail(String email) {
-        com.kolos.bookstore.data.dto.UserDto byEmail = userDao.findByEmail(email);
+        UserDto byEmail = userDao.findByEmail(email);
         if (byEmail == null) {
             return null;
         }
@@ -58,7 +59,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User save(User entity) {
-        com.kolos.bookstore.data.dto.UserDto userDto = new com.kolos.bookstore.data.dto.UserDto();
+        UserDto userDto = new UserDto();
         userDto.setEmail(entity.getEmail());
         userDto.setPassword(entity.getPassword());
         com.kolos.bookstore.data.dto.UserDto saved = userDao.save(userDto);
@@ -67,7 +68,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User update(User entity) {
-        com.kolos.bookstore.data.dto.UserDto userDto = dataMapper.toDto(entity);
+        UserDto userDto = dataMapper.toDto(entity);
         com.kolos.bookstore.data.dto.UserDto updated = userDao.update(userDto);
         return dataMapper.toEntity(updated);
     }

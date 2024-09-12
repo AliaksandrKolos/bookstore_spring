@@ -1,15 +1,19 @@
 package com.kolos.bookstore.data.dao.impl;
 
-import com.kolos.bookstore.data.connection.ConnectionManager;
 import com.kolos.bookstore.data.dao.BookDao;
 import com.kolos.bookstore.data.dto.BookDto;
-import com.kolos.bookstore.service.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.*;
-import java.util.ArrayList;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 
@@ -32,7 +36,7 @@ public class BookDaoImpl implements BookDao {
             JOIN covers ON b.cover_id = covers.id
             WHERE b.deleted = false
             ORDER BY b.id 
-            LIMIT ? OFFSET ?""";
+            LIMIT :limit OFFSET :offset""";
 
 
     private static final String ADD_NEW_BOOK = """
@@ -40,9 +44,11 @@ public class BookDaoImpl implements BookDao {
             VALUES (?, ?, ?, ?, ?, ?, ?, (SELECT id FROM covers WHERE cover_name = ?), false)""";
 
     private static final String UPDATE_BOOK = """
-            UPDATE books SET title = ?, author = ?, genre = ?, year = ?, isbn = ?, pages = ?, price = ?, cover_id = (SELECT id FROM covers)
-            WHERE cover_name = ?)
-            WHERE id = ? AND b.deleted = false""";
+            UPDATE books\s
+            SET title = :title, author = :author, genre = :genre, year = :year, isbn = :isbn, pages = :pages, price = :price,
+            cover_id = (SELECT id FROM covers WHERE cover_name = :cover_name)
+            WHERE id = :id AND deleted = false""";
+
 
     private static final String DELETE_BOOK = """
             UPDATE books
@@ -50,16 +56,17 @@ public class BookDaoImpl implements BookDao {
             WHERE id = ?""";
 
     private static final String FIND_BY_ISBN = """
-            SELECT b.id, b.title, b.author, b.genre, b.year, b.isbn, b.pages, b.price, b.cover_id
-            FROM books b JOIN covers ON b.cover_id = covers.id
+            SELECT b.id, b.title, b.author, b.genre, b.year, b.isbn, b.pages, b.price, c.cover_name
+            FROM books b
+            JOIN covers c ON b.cover_id = c.id
             WHERE b.isbn = ? AND b.deleted = false""";
 
     private static final String FIND_BY_AUTHOR = """
-            SELECT b.id, b.title, b.author, b.genre, b.year, b.isbn, b.pages, b.price, b.cover_id
+            SELECT b.id, b.title, b.author, b.genre, b.year, b.isbn, b.pages, b.price, covers.cover_name
             FROM books b JOIN covers ON b.cover_id = covers.id
-            WHERE b.author = ? AND b.deleted = false
+            WHERE b.author = :author AND b.deleted = false
             ORDER BY b.id 
-            LIMIT ? OFFSET ?
+            LIMIT :limit OFFSET :offset
             """;
 
     private static final String COUNT_ALL = """
@@ -77,199 +84,120 @@ public class BookDaoImpl implements BookDao {
             SELECT b.id, b.title, b.author, b.genre, b.year, b.isbn, b.pages, b.price, covers.cover_name
             FROM books b 
             JOIN covers ON b.cover_id = covers.id
-            WHERE b.deleted = false AND b.title LIKE ?
+            WHERE b.deleted = false AND b.title LIKE :searchMessage
             ORDER BY b.id 
-            LIMIT ? OFFSET ?""";
+            LIMIT :limit OFFSET :offset""";
 
 
-    private final ConnectionManager connectionManager;
-
-    @Override
-    public BookDto findByIsbn(String isbn) {
-        try (Connection connection = connectionManager.getConnection()) {
-            PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_ISBN);
-            preparedStatement.setString(1, isbn);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                return createFullBook(resultSet);
-            }
-        } catch (SQLException e) {
-            throw new NotFoundException("Cannot get Book by ISBN");
-        }
-        return null;
-    }
-
-    @Override
-    public List<BookDto> findByAuthor(String author, int offset, int limit) {
-        try (Connection connection = connectionManager.getConnection()) {
-            PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_AUTHOR);
-            preparedStatement.setString(1, author);
-            preparedStatement.setInt(2, limit);
-            preparedStatement.setInt(3, offset);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            List<BookDto> books = new ArrayList<>();
-            while (resultSet.next()) {
-                createFullBook(resultSet);
-            }
-            return books;
-
-        } catch (SQLException e) {
-            throw new NotFoundException("Cannot get Book by author");
-        }
-    }
-
-    @Override
-    public BookDto find(Long id) {
-        try (Connection connection = connectionManager.getConnection()) {
-            log.info("Connecting to the database...");
-            PreparedStatement preparedStatement = connection.prepareStatement(GET_BOOK_BY_ID);
-            preparedStatement.setLong(1, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                return createFullBook(resultSet);
-            }
-        } catch (SQLException e) {
-            throw new NotFoundException("Failed to find book with id " + id);
-        }
-        return null;
-    }
-
-
-    @Override
-    public int countAllSearch(String messages) {
-        int totalCount = 0;
-        String searchPattern = (messages == null || messages.trim().isEmpty()) ? "%" : "%" + messages.trim() + "%";
-        try (Connection connection = connectionManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(COUNT_ALL_SEARCH)) {
-            preparedStatement.setString(1, messages);
-            log.info("Connecting to the database and executing COUNT_ALL query...");
-            preparedStatement.setString(1, searchPattern);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    totalCount = resultSet.getInt("totalCount");
-                }
-            }
-        } catch (SQLException e) {
-            log.error("SQL exception occurred while counting books", e);
-            throw new NotFoundException("Cannot get Book count", e);
-        }
-        return totalCount;
-    }
-
-    @Override
-    public int countAll() {
-        int totalCount = 0;
-        try (Connection connection = connectionManager.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(COUNT_ALL)) {
-
-            log.info("Connecting to the database and executing COUNT_ALL query...");
-
-            if (resultSet.next()) {
-                totalCount = resultSet.getInt("totalCount");
-            }
-        } catch (SQLException e) {
-            log.error("SQL exception occurred while counting books", e);
-            throw new NotFoundException("Cannot get Book count", e);
-        }
-        return totalCount;
-    }
-
-    @Override
-    public List<BookDto> findAllSearch(String searchMessage, int offset, int limit) {
-        log.debug("Executing query with MESSAGE SEARCH '{}' LIMIT {} and OFFSET {}", searchMessage, limit, offset);
-        String searchPattern = (searchMessage == null || searchMessage.trim().isEmpty()) ? "%" : "%" + searchMessage.trim() + "%";
-        try (Connection connection = connectionManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(GET_ALL_PAGE_SEARCH)) {
-            log.info("Connecting to the database...");
-            statement.setString(1, searchPattern);
-            statement.setInt(2, limit);
-            statement.setInt(3, offset);
-
-            try (ResultSet resultSet = statement.executeQuery()) {
-                List<BookDto> books = new ArrayList<>();
-                while (resultSet.next()) {
-                    createShortBook(resultSet, books);
-                }
-                return books;
-            }
-        } catch (SQLException e) {
-            log.error("Error finding all books", e);
-            throw new NotFoundException("Error finding all books", e);
-        }
-    }
-
-    @Override
-    public List<BookDto> findAll(int limit, int offset) {
-        log.debug("Executing query with LIMIT {} and OFFSET {}", limit, offset);
-        try (Connection connection = connectionManager.getConnection()) {
-            log.info("Connecting to the database...");
-            PreparedStatement statement = connection.prepareStatement(GET_ALL_PAGE);
-            statement.setInt(1, limit);
-            statement.setInt(2, offset);
-            ResultSet resultSet = statement.executeQuery();
-            List<BookDto> books = new ArrayList<>();
-            while (resultSet.next()) {
-                createShortBook(resultSet, books);
-            }
-            return books;
-        } catch (SQLException e) {
-            log.error("Error finding all books", e);
-            throw new NotFoundException("Error finding all books");
-        }
-    }
+    private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 
     @Override
     public BookDto save(BookDto dto) {
-        try (Connection connection = connectionManager.getConnection()) {
-            log.info("Connecting to the database...");
-            PreparedStatement preparedStatement = connection.prepareStatement(ADD_NEW_BOOK, Statement.RETURN_GENERATED_KEYS);
-            setBookParameters(dto, preparedStatement);
-            preparedStatement.executeUpdate();
-            log.info("Created new entity " + dto.getId());
-            ResultSet resultSet = preparedStatement.getGeneratedKeys();
-            if (resultSet.next()) {
-                Long id = resultSet.getLong("id");
-                return find(id);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Error creating new entity");
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(con -> {
+            PreparedStatement ps = con.prepareStatement(ADD_NEW_BOOK, new String[]{"id"});
+            ps.setString(1, dto.getTitle());
+            ps.setString(2, dto.getAuthor());
+            ps.setString(3, dto.getGenre());
+            ps.setInt(4, dto.getYear());
+            ps.setString(5, dto.getIsbn());
+            ps.setInt(6, dto.getPages());
+            ps.setBigDecimal(7, dto.getPrice());
+            ps.setString(8, dto.getCover().name());
+            return ps;
+        }, keyHolder);
+        Number key = keyHolder.getKey();
+        if (key != null) {
+            return find(key.longValue());
         }
         return null;
     }
 
 
     @Override
-    public BookDto update(BookDto dto) {
-        try (Connection connection = connectionManager.getConnection()) {
-            log.info("Connecting to the database...");
-            PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_BOOK);
-            setBookParameters(dto, preparedStatement);
-            preparedStatement.setLong(8, dto.getId());
-            preparedStatement.executeUpdate();
-            log.info("Successfully updated the dto");
-            return find(dto.getId());
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Update failed");
+    public BookDto findByIsbn(String isbn) {
+        List<BookDto> book = jdbcTemplate.query(FIND_BY_ISBN, this::mapRow, isbn);
+        if (book.isEmpty()) {
+            return null;
         }
+        return book.getFirst();
+    }
+
+
+    @Override
+    public List<BookDto> findByAuthor(String author, int offset, int limit) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("author", author);
+        params.addValue("offset", offset);
+        params.addValue("limit", limit);
+        return namedParameterJdbcTemplate
+                .queryForStream(FIND_BY_AUTHOR, params, this::mapRow)
+                .toList();
+    }
+
+    @Override
+    public int countAll() {
+        return jdbcTemplate.queryForObject(COUNT_ALL, Integer.class);
+    }
+
+    @Override
+    public int countAllSearch(String messages) {
+        return jdbcTemplate.queryForObject(COUNT_ALL_SEARCH, Integer.class, "%" + messages + "%");
+    }
+
+
+    @Override
+    public List<BookDto> findAllSearch(String searchMessage, int offset, int limit) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("searchMessage", "%" + searchMessage + "%");
+        params.addValue("offset", offset);
+        params.addValue("limit", limit);
+        return namedParameterJdbcTemplate
+                .queryForStream(GET_ALL_PAGE_SEARCH, params, this::mapRow)
+                .toList();
+    }
+
+
+    @Override
+    public List<BookDto> findAll(int limit, int offset) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("limit", limit);
+        params.addValue("offset", offset);
+        return namedParameterJdbcTemplate
+                .queryForStream(GET_ALL_PAGE, params, this::mapRow)
+                .toList();
+    }
+
+    @Override
+    public BookDto update(BookDto dto) {
+        MapSqlParameterSource param = new MapSqlParameterSource();
+        param.addValue("title", dto.getTitle());
+        param.addValue("author", dto.getAuthor());
+        param.addValue("genre", dto.getGenre());
+        param.addValue("year", dto.getYear());
+        param.addValue("isbn", dto.getIsbn());
+        param.addValue("pages", dto.getPages());
+        param.addValue("price", dto.getPrice());
+        param.addValue("cover_name", dto.getCover().name());
+        param.addValue("id", dto.getId());
+        namedParameterJdbcTemplate.update(UPDATE_BOOK, param);
+        return find(dto.getId());
     }
 
     @Override
     public boolean delete(Long id) {
-        log.info("Connecting to the database...");
-        try (Connection connection = connectionManager.getConnection()) {
-            log.info("Connecting to the database...");
-            PreparedStatement preparedStatement = connection.prepareStatement(DELETE_BOOK);
-            preparedStatement.setLong(1, id);
-            return preparedStatement.executeUpdate() == 1;
-        } catch (SQLException e) {
-            throw new RuntimeException("Delete failed");
-        }
+        int updateRow = jdbcTemplate.update(DELETE_BOOK, id);
+        return updateRow == 1;
     }
 
-    private static BookDto createFullBook(ResultSet resultSet) throws SQLException {
+    @Override
+    public BookDto find(Long id) {
+        return jdbcTemplate.queryForObject(GET_BOOK_BY_ID, this::mapRow, id);
+    }
+
+    private BookDto mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         BookDto dto = new BookDto();
         dto.setId(resultSet.getLong("id"));
         dto.setTitle(resultSet.getString("title"));
@@ -281,25 +209,5 @@ public class BookDaoImpl implements BookDao {
         dto.setPrice(resultSet.getBigDecimal("price"));
         dto.setCover(BookDto.Cover.valueOf(resultSet.getString("cover_name").toUpperCase()));
         return dto;
-    }
-
-    private static void setBookParameters(BookDto dto, PreparedStatement preparedStatement) throws SQLException {
-        preparedStatement.setString(1, dto.getTitle());
-        preparedStatement.setString(2, dto.getAuthor());
-        preparedStatement.setString(3, dto.getGenre());
-        preparedStatement.setInt(4, dto.getYear());
-        preparedStatement.setString(5, dto.getIsbn());
-        preparedStatement.setInt(6, dto.getPages());
-        preparedStatement.setBigDecimal(7, dto.getPrice());
-        preparedStatement.setString(8, dto.getCover().name());
-    }
-
-    private static void createShortBook(ResultSet resultSet, List<BookDto> books) throws SQLException {
-        BookDto book = new BookDto();
-        book.setId(resultSet.getLong("id"));
-        book.setTitle(resultSet.getString("title"));
-        book.setAuthor(resultSet.getString("author"));
-        book.setPages(resultSet.getInt("pages"));
-        books.add(book);
     }
 }

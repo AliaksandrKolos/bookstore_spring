@@ -1,15 +1,20 @@
 package com.kolos.bookstore.data.dao.impl;
 
-import com.kolos.bookstore.data.connection.ConnectionManager;
 import com.kolos.bookstore.data.dao.UserDao;
 import com.kolos.bookstore.data.dto.UserDto;
-import com.kolos.bookstore.service.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.*;
-import java.util.ArrayList;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.util.List;
 
 @Slf4j
@@ -19,13 +24,13 @@ public class UserDaoImpl implements UserDao {
 
 
     private static final String FIND_BY_LASTNAME = """
-        SELECT u.id, u.email, u."password", u.first_name, u.last_name, roles.role_name, u.deleted
-        FROM users u
-        JOIN roles ON u.role_id = roles.id
-        WHERE LOWER(u.last_name) = LOWER(?) AND u.deleted = false
-        ORDER BY u.id
-        LIMIT ? OFFSET ?
-        """;
+            SELECT u.id, u.email, u."password", u.first_name, u.last_name, roles.role_name, u.deleted
+            FROM users u
+            JOIN roles ON u.role_id = roles.id
+            WHERE LOWER(u.last_name) = LOWER(:last_name) AND u.deleted = false
+            ORDER BY u.id
+            LIMIT :limit OFFSET :offset
+            """;
 
 
     private static final String FIND_BY_EMAIL = """
@@ -41,7 +46,7 @@ public class UserDaoImpl implements UserDao {
             JOIN roles ON u.role_id = roles.id
             WHERE u.deleted = false
             ORDER BY u.id
-            LIMIT ? OFFSET ?
+            LIMIT :limit OFFSET :offset
             """;
 
 
@@ -58,8 +63,8 @@ public class UserDaoImpl implements UserDao {
 
     private static final String UPDATE_USER = """
             UPDATE users 
-            SET email = ?, password = ?, first_name = ?, last_name = ?, role_id = (SELECT id FROM roles WHERE role_name = ?)
-            WHERE id = ? AND deleted = false
+            SET email = :email, password = :password, first_name = :first_name, last_name = :last_name, role_id = (SELECT id FROM roles WHERE role_name = :role_name)
+            WHERE id = :id AND deleted = false
             """;
 
 
@@ -72,181 +77,105 @@ public class UserDaoImpl implements UserDao {
 
     private static final String COUNT_ALL = """
             SELECT COUNT(u.id) as totalCount
-            FROM books u
+            FROM users u
             WHERE u.deleted = false""";
 
-    private final ConnectionManager connectionManager;
+    private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-
-    @Override
-    public UserDto findByEmail(String email) {
-        try (Connection connection = connectionManager.getConnection()) {
-            log.info("Connecting to the database...");
-            PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_EMAIL);
-            preparedStatement.setString(1, email);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            log.debug("Request to search user by EMAIL completed successfully.");
-            if (resultSet.next()) {
-                return createFullUserDto(resultSet);
-            }
-
-        } catch (SQLException e) {
-            throw new NotFoundException("Could not find user with email: " + email);
-        }
-        return null;
-    }
 
     @Override
     public List<UserDto> findByLastName(String lastName, int limit, int offset) {
-        List<UserDto> users = new ArrayList<>();
-        try (Connection connection = connectionManager.getConnection()) {
-            log.info("Connecting to the database...");
-            PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_LASTNAME);
-            preparedStatement.setString(1, lastName);
-            preparedStatement.setInt(2, limit);
-            preparedStatement.setInt(3, offset);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            log.debug("Request to search user by LASTNAME completed successfully.");
-            while (resultSet.next()) {
-                users.add(createFullUserDto(resultSet));
-            }
-        } catch (SQLException e) {
-            throw new NotFoundException("Could not find user with last name: " + lastName);
-        }
-        return users;
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("last_name", lastName);
+        params.addValue("limit", limit);
+        params.addValue("offset", offset);
+        return namedParameterJdbcTemplate
+                .queryForStream(FIND_BY_LASTNAME, params, this::mapRow)
+                .toList();
     }
 
+
+    @Override
+    public List<UserDto> findAll(int limit, int offset) {
+        MapSqlParameterSource paramMap = new MapSqlParameterSource();
+        paramMap.addValue("limit", limit);
+        paramMap.addValue("offset", offset);
+        return namedParameterJdbcTemplate.
+                queryForStream(GET_ALL_USERS_PAGES, paramMap, this::mapRow)
+                .toList();
+    }
 
 
     @Override
     public int countAll() {
-        int totalCount = 0;
-        try (Connection connection = connectionManager.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(COUNT_ALL)) {
-            log.info("Connecting to the database and executing COUNT_ALL query...");
-
-            if (resultSet.next()) {
-                totalCount = resultSet.getInt("totalCount");
-            }
-        } catch (SQLException e) {
-            log.error("SQL exception occurred while counting books", e);
-            throw new NotFoundException("Cannot get Book count", e);
-        }
-        return totalCount;
+        return jdbcTemplate.queryForObject(COUNT_ALL, Integer.class);
     }
 
     @Override
-    public UserDto find(Long id) {
-        try (Connection connection = connectionManager.getConnection()) {
-            log.info("Connecting to the database...");
-            PreparedStatement preparedStatement = connection.prepareStatement(GET_USER_BY_ID);
-            log.debug("Executing query...");
-            preparedStatement.setLong(1, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                return createFullUserDto(resultSet);
-            }
-        } catch (SQLException e) {
-            throw new NotFoundException("Could not find user with id: " + id);
+    public UserDto save(UserDto dto) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(ADD_NEW_USER, new String[]{"id"});
+            ps.setString(1, dto.getEmail());
+            ps.setString(2, dto.getPassword());
+            ps.setString(3, dto.getFirstName());
+            ps.setString(4, dto.getLastName());
+            return ps;
+        }, keyHolder);
+        Number key = keyHolder.getKey();
+        if (key != null) {
+            return find(key.longValue());
         }
         return null;
     }
 
     @Override
-    public List<UserDto> findAll(int limit, int offset) {
-        try (Connection connection = connectionManager.getConnection()) {
-            log.info("Connecting to the database...");
-            PreparedStatement statement = connection.prepareStatement(GET_ALL_USERS_PAGES);
-            statement.setInt(1, limit);
-            statement.setInt(2, offset);
-            ResultSet resultSet = statement.executeQuery();
-            log.debug("Executing query...");
-            List<UserDto> users = new ArrayList<>();
-            while (resultSet.next()) {
-                UserDto dto = createFullUserDto(resultSet);
-                users.add(dto);
-            }
-            return users;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+    public UserDto findByEmail(String email) {
+        List<UserDto> user = jdbcTemplate.query(FIND_BY_EMAIL, this::mapRow, email);
+        if (user.isEmpty()) {
+            return null;
         }
+        return user.getFirst();
     }
-
 
     @Override
-    public UserDto save(UserDto dto) {
-        try (Connection connection = connectionManager.getConnection()) {
-            log.info("Connecting to the database...");
-            PreparedStatement preparedStatement = connection.prepareStatement(ADD_NEW_USER, Statement.RETURN_GENERATED_KEYS);
-            log.debug("Executing query...");
-            setUserCreateParameters(dto, preparedStatement);
-            preparedStatement.executeUpdate();
-            ResultSet resultSet = preparedStatement.getGeneratedKeys();
-            if (resultSet.next()) {
-                Long id = resultSet.getLong("id");
-                return find(id);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        throw new RuntimeException("Error creating dto");
+    public UserDto find(Long id) {
+        return jdbcTemplate.queryForObject(GET_USER_BY_ID, this::mapRow, id);
     }
-
 
     @Override
     public UserDto update(UserDto dto) {
-        try (Connection connection = connectionManager.getConnection()) {
-            log.info("Connecting to the database...");
-            PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_USER);
-            log.debug("Executing query...");
-            setUserUpdateParameters(dto, preparedStatement);
-            preparedStatement.executeUpdate();
-            return find(dto.getId());
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("email", dto.getEmail(), Types.VARCHAR);
+        params.addValue("password", dto.getPassword(), Types.VARCHAR);
+        params.addValue("first_name", dto.getFirstName(), Types.VARCHAR);
+        params.addValue("last_name", dto.getLastName(), Types.VARCHAR);
+        params.addValue("role_name", dto.getRole().name(), Types.VARCHAR);
+        params.addValue("id", dto.getId(), Types.BIGINT);
 
-        } catch (SQLException e) {
-            throw new RuntimeException("Couldn't update dto");
-        }
+        namedParameterJdbcTemplate.update(UPDATE_USER, params);
+        return find(dto.getId());
     }
+
 
     @Override
     public boolean delete(Long id) {
-        try (Connection connection = connectionManager.getConnection()) {
-            log.info("Connecting to the database...");
-            PreparedStatement preparedStatement = connection.prepareStatement(DELETE_USER);
-            log.debug("Executing query...");
-            preparedStatement.setLong(1, id);
-            return preparedStatement.executeUpdate() == 1;
-        } catch (SQLException e) {
-            throw new RuntimeException("Error while deleting user");
-        }
+        int rowUpdated = jdbcTemplate.update(DELETE_USER, id);
+        return rowUpdated == 1;
     }
 
-    private static UserDto createFullUserDto(ResultSet resultSet) throws SQLException {
+
+    private UserDto mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         UserDto dto = new UserDto();
         dto.setId(resultSet.getLong("id"));
         dto.setEmail(resultSet.getString("email"));
         dto.setPassword(resultSet.getString("password"));
         dto.setFirstName(resultSet.getString("first_name"));
         dto.setLastName(resultSet.getString("last_name"));
-        dto.setRole(UserDto.Role.valueOf(resultSet.getString("role_name")));
+        dto.setRole(UserDto.Role.valueOf(resultSet.getString("role_name").toUpperCase()));
         return dto;
     }
 
 
-    private static void setUserUpdateParameters(UserDto dto, PreparedStatement preparedStatement) throws SQLException {
-        preparedStatement.setString(1, dto.getEmail());
-        preparedStatement.setString(2, dto.getPassword());
-        preparedStatement.setString(3, dto.getFirstName());
-        preparedStatement.setString(4, dto.getLastName());
-        preparedStatement.setString(5, dto.getRole().name());
-        preparedStatement.setLong(6, dto.getId());
-    }
-
-    private static void setUserCreateParameters(UserDto dto, PreparedStatement preparedStatement) throws SQLException {
-        preparedStatement.setString(1, dto.getEmail());
-        preparedStatement.setString(2, dto.getPassword());
-        preparedStatement.setString(3, dto.getFirstName());
-        preparedStatement.setString(4, dto.getLastName());
-    }
 }

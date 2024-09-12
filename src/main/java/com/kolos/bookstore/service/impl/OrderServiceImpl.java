@@ -60,7 +60,7 @@ public class OrderServiceImpl implements OrderService {
         List<OrderDto> orders = orderRepository.findByUserId(userId, pageable.getLimit(), pageable.getOffset()).stream()
                 .map(serviceMapper::toDto)
                 .toList();
-        int count = orderRepository.countAllMassage(String.valueOf(userId));
+        int count = orderRepository.countAllMassage(userId);
         int pages = getTotalPages(pageable, count);
         pageable.setTotalItems(count);
         pageable.setTotalPages(pages);

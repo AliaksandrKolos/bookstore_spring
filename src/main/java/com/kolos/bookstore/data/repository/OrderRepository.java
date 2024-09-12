@@ -10,6 +10,6 @@ public interface OrderRepository extends AbstractRepository<Long, Order> {
 
     int countAll();
 
-    int countAllMassage(String messages);
+    int countAllMassage(Long id);
 
 }
