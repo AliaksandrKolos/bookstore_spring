@@ -6,11 +6,9 @@ public interface AbstractRepository <K, T> {
 
     T find(K id);
 
-    List<T> findAll(int offset, int limit);
+    List<T> findAll(long offset, long limit);
 
     T save(T entity);
-
-    T update(T entity);
 
     boolean delete(K id);
 }
