@@ -6,10 +6,10 @@ import java.util.List;
 
 public interface OrderRepository extends AbstractRepository<Long, Order> {
 
-    List<Order> findByUserId(Long userId, int limit, int offset);
+    List<Order> findByUserId(Long id, long limit, long offset);
 
-    int countAll();
+    long countAll();
 
-    int countAllMassage(Long id);
+    long countAllById(Long id);
 
 }
