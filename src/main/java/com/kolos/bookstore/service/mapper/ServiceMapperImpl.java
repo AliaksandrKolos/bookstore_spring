@@ -89,7 +89,7 @@ public class ServiceMapperImpl implements ServiceMapper {
                 .collect(Collectors.toList());
         order.setItems(orderItems);
         order.setCost(dto.getCost());
-        order.setStatus(Order.Status.PENDING);
+        order.setStatus(Order.Status.valueOf(dto.getStatus().name()));
         return order;
     }
 
