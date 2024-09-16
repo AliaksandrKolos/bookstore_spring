@@ -1,136 +1,101 @@
 package com.kolos.bookstore.data.repository.impl;
 
-import com.kolos.bookstore.data.dao.BookDao;
-import com.kolos.bookstore.data.dao.OrderDao;
-import com.kolos.bookstore.data.dao.OrderItemDao;
-import com.kolos.bookstore.data.dao.UserDao;
-import com.kolos.bookstore.data.dto.BookDto;
-import com.kolos.bookstore.data.dto.OrderDto;
-import com.kolos.bookstore.data.dto.OrderItemDto;
-import com.kolos.bookstore.data.entity.Book;
 import com.kolos.bookstore.data.entity.Order;
-import com.kolos.bookstore.data.entity.OrderItem;
-import com.kolos.bookstore.data.entity.User;
-import com.kolos.bookstore.data.mapper.DataMapper;
 import com.kolos.bookstore.data.repository.OrderRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
+@Transactional
 @Repository
 public class OrderRepositoryImpl implements OrderRepository {
 
-    private final OrderDao orderDao;
-    private final UserDao userDao;
-    private final BookDao bookDao;
-    private final OrderItemDao orderItemDao;
-    private final DataMapper dataMapper;
+
+    @PersistenceContext
+    private EntityManager manager;
 
     @Override
-    public Order find(Long id) {
-        OrderDto orderDto = orderDao.find(id);
-        return combineOrder(orderDto);
+    public long countAll() {
+        TypedQuery<Long> query = manager.createQuery("SELECT COUNT(*) FROM Order", Long.class);
+        return query.getSingleResult();
     }
 
     @Override
-    public List<Order> findAll(int limit, int offset) {
-        return orderDao.findAll(limit, offset)
-                .stream()
-                .map(this::combineOrder)
-                .collect(Collectors.toList());
+    public long countAllById(Long id) {
+        CriteriaBuilder cb = manager.getCriteriaBuilder();
+
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<Order> root = cq.from(Order.class);
+        cq.select(cb.count(root)).where(cb.equal(root.get("user").get("id"), id));
+
+        TypedQuery<Long> query = manager.createQuery(cq);
+        return query.getSingleResult();
+    }
+
+    @Override
+    public List<Order> findAll(long limit, long offset) {
+        CriteriaBuilder cb = manager.getCriteriaBuilder();
+
+        CriteriaQuery<Order> cq = cb.createQuery(Order.class);
+        Root<Order> root = cq.from(Order.class);
+        cq.select(root);
+        TypedQuery<Order> query = manager.createQuery(cq);
+        return query.setFirstResult((int) offset).setMaxResults((int) limit).getResultList();
     }
 
 
     @Override
-    public Order save(Order entity) {
-        OrderDto orderDto = dataMapper.toDto(entity);
-        OrderDto savedOrderDto = orderDao.save(orderDto);
+    public List<Order> findByUserId(Long id, long limit, long offset) {
+        CriteriaBuilder cb = manager.getCriteriaBuilder();
 
-        entity.getItems().forEach(orderItem -> {
-            OrderItemDto orderItemDto = dataMapper.toDto(orderItem);
-            orderItemDto.setOrderId(savedOrderDto.getId());
-            orderItemDao.save(orderItemDto);
-        });
-        return combineOrder(savedOrderDto);
-    }
+        CriteriaQuery<Order> cq = cb.createQuery(Order.class);
+        Root<Order> root = cq.from(Order.class);
+        cq.where(cb.equal(root.get("user").get("id"), id));
 
-    @Override
-    public Order update(Order order) {
-        OrderDto orderDto = dataMapper.toDto(order);
-        OrderDto updatedOrderDto = orderDao.update(orderDto);
-        orderItemDao.findByOrderId(order.getId())
-                .forEach(oldOrderItem -> orderItemDao.delete(oldOrderItem.getId()));
-        order.getItems().forEach(orderItem -> {
-            OrderItemDto orderItemDto = dataMapper.toDto(orderItem);
-            orderItemDto.setOrderId(updatedOrderDto.getId());
-            orderItemDao.save(orderItemDto);
-        });
-        return combineOrder(updatedOrderDto);
+        TypedQuery<Order> query = manager.createQuery(cq);
+        return query.setFirstResult((int) offset).setMaxResults((int) limit).getResultList();
     }
 
 
     @Override
     public boolean delete(Long id) {
-        if (!orderDao.delete(id)) {
-            return false;
+        Order order = manager.find(Order.class, id);
+        if (order != null) {
+            order.setStatus(Order.Status.CANCELLED);
+            return true;
         }
-        orderItemDao.findByOrderId(id)
-                .forEach(orderItemDto -> orderItemDao.delete(orderItemDto.getId()));
-        return true;
+        return false;
     }
+
 
     @Override
-    public List<Order> findByUserId(Long userId, int limit, int offset) {
-        return orderDao.findByUserId(userId, limit, offset)
-                .stream()
-                .map(this::combineOrder)
-                .collect(Collectors.toList());
+    public Order save(Order entity) {
+        if (entity.getId() == null) {
+            manager.persist(entity);
+        } else {
+            manager.merge(entity);
+        }
+        return entity;
     }
+
 
     @Override
-    public int countAll() {
-        return orderDao.countAll();
+    public Order find(Long id) {
+        return manager.createQuery("FROM Order WHERE id = :id", Order.class)
+                .setParameter("id", id)
+                .getResultStream()
+                .findFirst()
+                .orElse(null);
     }
-
-    @Override
-    public int countAllMassage(Long id) {
-        return orderDao.countAll(id);
-    }
-
-
-    private Order combineOrder(OrderDto orderDto) {
-        Order order = new Order();
-        order.setId(orderDto.getId());
-        order.setCost(orderDto.getCost());
-        order.setStatus(Order.Status.valueOf(orderDto.getStatus().name()));
-
-        Long userId = orderDto.getUserId();
-        com.kolos.bookstore.data.dto.UserDto userDto = userDao.find(userId);
-        User user = dataMapper.toEntity(userDto);
-        order.setUser(user);
-
-        Long orderId = orderDto.getId();
-        List<OrderItemDto> orderItemDto = orderItemDao.findByOrderId(orderId);
-        List<OrderItem> details = new ArrayList<>();
-        orderItemDto.forEach(dto -> {
-            OrderItem entity = dataMapper.toEntity(dto);
-
-            BookDto bookDto = bookDao.find(dto.getBookId());
-            Book book = dataMapper.toEntity(bookDto);
-
-            entity.setBook(book);
-            details.add(entity);
-        });
-        order.setItems(details);
-
-        return order;
-    }
-
-
 }
