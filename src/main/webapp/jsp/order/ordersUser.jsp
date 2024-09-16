@@ -51,12 +51,13 @@
             <td><a href="controller?command=order&id=<c:out value="${order.id}"/>"><c:out value="${order.id}"/></a></td>
             <td><c:out value="${order.status}"/></td>
             <td><c:out value="${order.cost}"/></td>
-            <td>
-                <form method="post" action="controller?command=order_cancel&id=<c:out value="${order.id}"/>">
-                    <input type="submit" value="<fmt:message key="ordersUser.order_cancel"/>">
-                </form>
-            </td>
-
+            <c:if test="${order.status.name() != 'CANCELLED'}">
+                <td>
+                    <form method="post" action="controller?command=order_cancel&id=<c:out value="${order.id}"/>">
+                        <input type="submit" value="<fmt:message key="ordersUser.order_cancel"/>">
+                    </form>
+                </td>
+            </c:if>
         </tr>
     </c:forEach>
 </table>

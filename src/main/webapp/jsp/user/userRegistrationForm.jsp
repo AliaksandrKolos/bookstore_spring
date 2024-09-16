@@ -25,7 +25,7 @@
 <h1><fmt:message key="userRegistrationForm.header"/></h1>
 <form method="post" action=controller?command=user_registration>
     <input type="text" placeholder="<fmt:message key="userRegistrationForm.email"/>" name="email">
-    <input name="password" type="text" placeholder="<fmt:message key="userRegistrationForm.password"/>" minlength="1" required>
+    <input name="password" type="password" placeholder="<fmt:message key="userRegistrationForm.password"/>" minlength="1" required>
     <button type="submit" class="btn"><fmt:message key="userRegistrationForm.registration_button"/></button>
 
     <c:if test="${not empty dataError}">

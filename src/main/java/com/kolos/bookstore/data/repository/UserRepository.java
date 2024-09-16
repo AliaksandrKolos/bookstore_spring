@@ -8,8 +8,8 @@ public interface UserRepository extends AbstractRepository<Long, User> {
 
     User findByEmail(String email);
 
-    List<User> findByLastName(String lastName, int limit, int offset);
+    List<User> findByLastName(String lastName, long limit, long offset);
 
-    int countAll();
+    long countAll();
 
 }

@@ -1,6 +1,5 @@
-package com.kolos.bookstore.controller;
+package com.kolos.bookstore;
 
-import com.kolos.bookstore.AppConfig;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
@@ -25,8 +24,8 @@ public class AppListener implements ServletContextListener {
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         if (context != null) {
-            log.info("Application closed");
             context.close();
+            log.info("Application closed");
         }
     }
 }

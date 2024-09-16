@@ -25,7 +25,7 @@
 <h1><fmt:message key="login_form.header"/></h1>
 <form method="post" action=controller?command=user_login>
     <input type="text" placeholder="<fmt:message key="login_form.email"/>" name="email">
-    <input type="text" placeholder="<fmt:message key="login_form.password"/>" name="password">
+    <input type="password" placeholder="<fmt:message key="login_form.password"/>" name="password">
     <button type="submit" class="btn"><fmt:message key="login_form.login"/></button>
 
     <c:if test="${not empty dataError}">

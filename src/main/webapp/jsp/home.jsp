@@ -23,8 +23,6 @@
 <body>
 <jsp:include page="navbar.jsp"/>
 <h1><fmt:message key="index.heading"/></h1>
-<p>Current Locale: ${sessionScope.lang}</p>
-
 <h1><fmt:message key="index.welcome"/> ${sessionScope.user != null ? user.email : "Guest"} </h1>
 <img src="images/lib.png" alt="library">
 </body>

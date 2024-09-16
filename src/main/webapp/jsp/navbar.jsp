@@ -51,9 +51,6 @@
         <li><a href="controller?command=change_lang&lang=en">English</a></li>
         <li><a href="controller?command=change_lang&lang=ru">Русский</a></li>
         <li><a href="controller?command=change_lang&lang=de">Deutsch</a></li>
-
-
-
     </ul>
 </header>
 

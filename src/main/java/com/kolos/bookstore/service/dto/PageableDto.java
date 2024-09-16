@@ -1,13 +1,13 @@
 package com.kolos.bookstore.service.dto;
 
 public class PageableDto {
-    private final int page;
-    private final int pageSize;
-    private final int offset;
-    private int totalItems;
-    private int totalPages;
+    private final long page;
+    private final long pageSize;
+    private final long offset;
+    private long totalItems;
+    private long totalPages;
 
-    public PageableDto(int page, int pageSize) {
+    public PageableDto(long page, long pageSize) {
         this.page = page;
         this.pageSize = pageSize;
         this.offset = calculateOffset();
@@ -15,43 +15,43 @@ public class PageableDto {
 
 
 
-    private int calculateOffset() {
+    private long calculateOffset() {
         return pageSize * (page - 1);
     }
 
-    public void setTotalItems(int totalItems) {
+    public void setTotalItems(long totalItems) {
         this.totalItems = totalItems;
     }
 
-    public void setTotalPages(int totalPages) {
+    public void setTotalPages(long totalPages) {
         this.totalPages = totalPages;
     }
 
-    public int getTotalItems() {
+    public long getTotalItems() {
         return totalItems;
     }
 
-    public int getTotalPages() {
+    public long getTotalPages() {
         return totalPages;
     }
 
-    private int calculateLimit() {
+    private long calculateLimit() {
         return pageSize;
     }
 
-    public int getPage() {
+    public long getPage() {
         return page;
     }
 
-    public int getPageSize() {
+    public long getPageSize() {
         return pageSize;
     }
 
-    public int getLimit() {
+    public long getLimit() {
         return pageSize;
     }
 
-    public int getOffset() {
+    public long getOffset() {
         return offset;
     }
 }

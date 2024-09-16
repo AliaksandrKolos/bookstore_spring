@@ -30,7 +30,7 @@ public class BooksSearchCommand implements Command {
         request.setAttribute("totalPages", pageableDto.getTotalPages());
         request.setAttribute("books", books);
 
-        return "jsp/book/books.jsp";
+        return "jsp/book/booksSearch.jsp";
     }
 
 }

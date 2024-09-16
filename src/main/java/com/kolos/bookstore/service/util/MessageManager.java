@@ -1,10 +1,12 @@
 package com.kolos.bookstore.service.util;
 
+import org.springframework.stereotype.Component;
+
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-public enum MassageManager {
-    INSTANCE;
+@Component
+public class MessageManager  {
 
     private static final String BUNDLE_NAME = "messages";
     private final ThreadLocal<ResourceBundle> resourceBundle = ThreadLocal.withInitial(() -> ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault()));

@@ -1,80 +1,98 @@
 package com.kolos.bookstore.data.repository.impl;
 
-import com.kolos.bookstore.data.dao.UserDao;
-import com.kolos.bookstore.data.dto.UserDto;
 import com.kolos.bookstore.data.entity.User;
-import com.kolos.bookstore.data.mapper.DataMapper;
 import com.kolos.bookstore.data.repository.UserRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
+@Transactional
 @Repository
 public class UserRepositoryImpl implements UserRepository {
 
-    private final UserDao userDao;
-    private final DataMapper dataMapper;
-
+    @PersistenceContext
+    private EntityManager manager;
 
     @Override
-    public User find(Long id) {
-        com.kolos.bookstore.data.dto.UserDto byId = userDao.find(id);
-        return dataMapper.toEntity(byId);
+    public List<User> findAll(long limit, long offset) {
+        CriteriaBuilder cb = manager.getCriteriaBuilder();
+
+        CriteriaQuery<User> cq = cb.createQuery(User.class);
+        Root<User> root = cq.from(User.class);
+        cq.select(root).where(cb.equal(root.get("deleted"), false));
+        TypedQuery<User> query = manager.createQuery(cq);
+        return query.setFirstResult((int) offset).setMaxResults((int) limit).getResultList();
     }
 
     @Override
-    public List<User> findAll(int limit, int offset) {
-        return userDao.findAll(limit, offset)
-                .stream()
-                .map(dataMapper::toEntity)
-                .collect(Collectors.toList());
+    public List<User> findByLastName(String lastName, long limit, long offset) {
+        CriteriaBuilder cb = manager.getCriteriaBuilder();
+
+        CriteriaQuery<User> cq = cb.createQuery(User.class);
+        Root<User> root = cq.from(User.class);
+        cq.where(
+                cb.and(
+                        cb.equal(cb.lower(root.get("lastName")), lastName.toLowerCase()),
+                        cb.equal(root.get("deleted"), false)
+                )
+        );
+        TypedQuery<User> query = manager.createQuery(cq);
+        return query.setFirstResult((int) offset).setMaxResults((int) limit).getResultList();
+    }
+
+
+    @Override
+    public long countAll() {
+        TypedQuery<Long> query = manager.createQuery("SELECT COUNT(*) FROM User u WHERE u.deleted = false", Long.class);
+        return query.getSingleResult();
     }
 
 
     @Override
     public User findByEmail(String email) {
-        UserDto byEmail = userDao.findByEmail(email);
-        if (byEmail == null) {
-            return null;
-        }
-        return dataMapper.toEntity(byEmail);
-    }
-
-    @Override
-    public List<User> findByLastName(String lastName, int limit, int offset) {
-        return userDao.findByLastName(lastName, limit, offset).stream()
-                .map(dataMapper::toEntity)
-                .collect(Collectors.toList());
-    }
-
-
-    @Override
-    public int countAll() {
-        return userDao.countAll();
+        return manager.createQuery("FROM User WHERE email = :email AND deleted = false", User.class)
+                .setParameter("email", email)
+                .getResultStream()
+                .findFirst()
+                .orElse(null);
     }
 
 
     @Override
     public User save(User entity) {
-        UserDto userDto = new UserDto();
-        userDto.setEmail(entity.getEmail());
-        userDto.setPassword(entity.getPassword());
-        com.kolos.bookstore.data.dto.UserDto saved = userDao.save(userDto);
-        return dataMapper.toEntity(saved);
+        if (entity.getId() == null) {
+            manager.persist(entity);
+        } else {
+            manager.merge(entity);
+        }
+        return entity;
     }
 
     @Override
-    public User update(User entity) {
-        UserDto userDto = dataMapper.toDto(entity);
-        com.kolos.bookstore.data.dto.UserDto updated = userDao.update(userDto);
-        return dataMapper.toEntity(updated);
+    public User find(Long id) {
+        return manager.createQuery("FROM User u WHERE u.id = :id AND u.deleted = false", User.class)
+                .setParameter("id", id)
+                .getResultStream()
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
     public boolean delete(Long id) {
-        return userDao.delete(id);
+        User user = manager.find(User.class, id);
+        if (user != null) {
+            user.setDeleted(true);
+            return true;
+        }
+        return false;
     }
 }

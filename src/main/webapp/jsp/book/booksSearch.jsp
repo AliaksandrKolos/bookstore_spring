@@ -39,21 +39,21 @@
     </form>
 
     <div class="pagination">
-        <a href="controller?command=books&page=1&page_size=${param.page_size}">
+        <a href="controller?command=books_search&page=1&page_size=${param.page_size}&search=${param.search}">
             <fmt:message key="books.first"/>
         </a>
 
-        <a href="controller?command=books&page=${page <= 1 ? 1 : page - 1}&page_size=${param.page_size}">
+        <a href="controller?command=books_search&page=${page <= 1 ? 1 : page - 1}&page_size=${param.page_size}&search=${param.search}">
             <fmt:message key="books.prev"/>
         </a>
 
         <c:out value="${page}"/>
 
-        <a href="controller?command=books&page=${page < totalPages ? page + 1 : totalPages}&page_size=${param.page_size}">
+        <a href="controller?command=books_search&page=${page < totalPages ? page + 1 : totalPages}&page_size=${param.page_size}&search=${param.search}">
             <fmt:message key="books.next"/>
         </a>
 
-        <a href="controller?command=books&page=${totalPages}&page_size=${param.page_size}">
+        <a href="controller?command=books_search&page=${totalPages}&page_size=${param.page_size}&search=${param.search}">
             <fmt:message key="books.last"/>
         </a>
     </div>

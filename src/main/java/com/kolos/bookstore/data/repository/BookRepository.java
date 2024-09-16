@@ -8,11 +8,11 @@ public interface BookRepository extends AbstractRepository<Long, Book> {
 
     Book findByIsbn(String isbn);
 
-    List<Book> findByAuthor(String author, int limit, int offset);
+    List<Book> findByAuthor(String author, long limit, long offset);
 
-    int countAll();
+    long countAll();
 
-    List<Book> findAllSearch(String searchMessage, int limit, int offset);
+    List<Book> findAllByTitle(String searchMessage, long limit, long offset);
 
     int countAll(String messages);
 

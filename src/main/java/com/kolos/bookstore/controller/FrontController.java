@@ -1,5 +1,6 @@
 package com.kolos.bookstore.controller;
 
+import com.kolos.bookstore.AppListener;
 import com.kolos.bookstore.controller.command.Command;
 import com.kolos.bookstore.service.exception.DuplicateEmailException;
 import com.kolos.bookstore.service.exception.InvalidOrderStatusTransitionException;
