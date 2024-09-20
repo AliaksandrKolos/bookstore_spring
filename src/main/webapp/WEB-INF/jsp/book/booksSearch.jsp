@@ -29,9 +29,8 @@
 </c:if>
 
 <c:if test="${books != null && !books.isEmpty()}">
-    <form method="get" action="controller">
-        <input type="text" placeholder="<fmt:message key='books.search'/>" name="search" value="${param.search}" />
-        <input type="hidden" name="command" value="books_search" />
+    <form method="get" action="${pageContext.request.contextPath}/books/search_title">
+        <input type="text" placeholder="<fmt:message key='books.search'/>" name="title" value="${param.title}" />
         <input type="hidden" name="page" value="${param.page != null ? param.page : 1}" />
         <input type="hidden" name="page_size" value="${param.page_size != null ? param.page_size : 5}" />
 
@@ -39,21 +38,21 @@
     </form>
 
     <div class="pagination">
-        <a href="controller?command=books_search&page=1&page_size=${param.page_size}&search=${param.search}">
+        <a href="${pageContext.request.contextPath}/books/search_title?title=${param.title}&page=1&page_size=${param.page_size}">
             <fmt:message key="books.first"/>
         </a>
 
-        <a href="controller?command=books_search&page=${page <= 1 ? 1 : page - 1}&page_size=${param.page_size}&search=${param.search}">
+        <a href="${pageContext.request.contextPath}/books/search_title?title=${param.title}&page=${page <= 1 ? 1 : page - 1}&page_size=${param.page_size}">
             <fmt:message key="books.prev"/>
         </a>
 
         <c:out value="${page}"/>
 
-        <a href="controller?command=books_search&page=${page < totalPages ? page + 1 : totalPages}&page_size=${param.page_size}&search=${param.search}">
+        <a href="${pageContext.request.contextPath}/books/search_title?title=${param.title}&page=${page < totalPages ? page + 1 : totalPages}&page_size=${param.page_size}">
             <fmt:message key="books.next"/>
         </a>
 
-        <a href="controller?command=books_search&page=${totalPages}&page_size=${param.page_size}&search=${param.search}">
+        <a href="${pageContext.request.contextPath}/books/search_title?title=${param.title}&page=${totalPages}&page_size=${param.page_size}">
             <fmt:message key="books.last"/>
         </a>
     </div>
@@ -74,19 +73,19 @@
         <c:forEach items="${books}" var="book">
             <tr>
                 <td><c:out value="${book.id}"/></td>
-                <td><a href="controller?command=book&id=<c:out value="${book.id}"/>"><c:out value="${book.title}"/></a></td>
+                <td><a href="${pageContext.request.contextPath}/books/${book.id}"><c:out value="${book.title}"/></a></td>
                 <td><c:out value="${book.author}"/></td>
                 <td>
-                    <form method="post" action="${pageContext.request.contextPath}/controller?command=addToCart" class="form-inline">
+                    <form method="post" action="${pageContext.request.contextPath}/books/addCart" class="form-inline">
                         <input type="hidden" name="bookId" value="<c:out value="${book.id}"/>">
                         <input type="number" name="quantity" value="1" min="1">
                         <input type="submit" value="<fmt:message key='books.add_cart'/>">
                     </form>
                 </td>
                 <c:if test="${sessionScope.user.role eq 'MANAGER' || sessionScope.user.role eq 'ADMIN'}">
-                    <td><a href="controller?command=book_edit_form&id=<c:out value="${book.id}"/>">Edit</a></td>
+                    <td><a href="${pageContext.request.contextPath}/books/edit/${book.id}">Edit</a></td>
                     <td>
-                        <form method="post" action="controller?command=book_delete&id=<c:out value="${book.id}"/>">
+                        <form method="post" action="${pageContext.request.contextPath}/books/delete/${book.id}">
                             <input type="submit" value="<fmt:message key='books.button_delete'/>">
                         </form>
                     </td>

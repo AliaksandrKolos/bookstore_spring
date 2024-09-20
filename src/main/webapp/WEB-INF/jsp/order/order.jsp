@@ -12,13 +12,13 @@
 </c:if>
 <c:if test="${sessionScope.lang =='de'}">
     <fmt:setBundle basename="messages_de"/>
-    <fmt:setLocale value="ru"/>
+    <fmt:setLocale value="de"/>
 </c:if>
 <!doctype html>
 <html>
 <head>
     <title><fmt:message key="order.title"/></title>
-    <link rel="stylesheet" type="text/css" href="<c:url value='/css/style.css' />">
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
 </head>
 <body>
 <jsp:include page="../navbar.jsp"/>

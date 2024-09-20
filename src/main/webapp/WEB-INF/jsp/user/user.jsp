@@ -11,11 +11,11 @@
 </c:if>
 <c:if test="${sessionScope.lang =='de'}">
     <fmt:setBundle basename="messages_de"/>
-    <fmt:setLocale value="ru"/>
+    <fmt:setLocale value="de"/>
 </c:if>
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="..css/style.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
     <title><fmt:message key="user.title"/></title>
 </head>
 <body>

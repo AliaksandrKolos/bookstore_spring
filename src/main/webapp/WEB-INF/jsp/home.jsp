@@ -12,7 +12,7 @@
 </c:if>
 <c:if test="${sessionScope.lang =='de'}">
     <fmt:setBundle basename="messages_de"/>
-    <fmt:setLocale value="ru"/>
+    <fmt:setLocale value="de"/>
 </c:if>
 
 
@@ -24,6 +24,6 @@
 <jsp:include page="navbar.jsp"/>
 <h1><fmt:message key="index.heading"/></h1>
 <h1><fmt:message key="index.welcome"/> ${sessionScope.user != null ? user.email : "Guest"} </h1>
-<img src="images/lib.png" alt="library">
+<img src="/images/lib.png" alt="library">
 </body>
 </html>

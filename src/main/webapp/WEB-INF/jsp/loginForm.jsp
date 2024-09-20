@@ -11,30 +11,29 @@
 </c:if>
 <c:if test="${sessionScope.lang =='de'}">
     <fmt:setBundle basename="messages_de"/>
-    <fmt:setLocale value="ru"/>
+    <fmt:setLocale value="de"/>
 </c:if>
 <html>
 <head>
-    <title><fmt:message key="userRegistrationForm.title"/></title>
-    <link rel="stylesheet" type="text/css" href="..css/style.css">
+    <title><fmt:message key="login_form.title"/></title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
 
 </head>
 <body>
-<jsp:include page="../navbar.jsp"/>
+<jsp:include page="navbar.jsp"/>
 
-<h1><fmt:message key="userRegistrationForm.header"/></h1>
-<form method="post" action=controller?command=user_registration>
-    <input type="text" placeholder="<fmt:message key="userRegistrationForm.email"/>" name="email">
-    <input name="password" type="password" placeholder="<fmt:message key="userRegistrationForm.password"/>" minlength="1" required>
-    <button type="submit" class="btn"><fmt:message key="userRegistrationForm.registration_button"/></button>
+<h1><fmt:message key="login_form.header"/></h1>
+<form method="post" action=login>
+    <input type="text" placeholder="<fmt:message key="login_form.email"/>" name="email">
+    <input type="password" placeholder="<fmt:message key="login_form.password"/>" name="password">
+    <button type="submit" class="btn"><fmt:message key="login_form.login"/></button>
 
     <c:if test="${not empty dataError}">
         <p><c:out value="${dataError}"/></p>
     </c:if>
 
+
+
 </form>
-
-
 </body>
 </html>
-
