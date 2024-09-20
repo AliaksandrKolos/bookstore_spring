@@ -1,4 +1,4 @@
-package com.kolos.bookstore.web.controller.interceptor;
+package com.kolos.bookstore.web.interceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
