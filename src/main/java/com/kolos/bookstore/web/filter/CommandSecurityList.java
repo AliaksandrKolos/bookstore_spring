@@ -1,4 +1,4 @@
-package com.kolos.bookstore.web.controller.filter;
+package com.kolos.bookstore.web.filter;
 
 import com.kolos.bookstore.service.dto.UserDto;
 
