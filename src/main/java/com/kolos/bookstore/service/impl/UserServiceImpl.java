@@ -8,17 +8,13 @@ import com.kolos.bookstore.service.UserService;
 import com.kolos.bookstore.service.dto.PageableDto;
 import com.kolos.bookstore.service.dto.UserDto;
 import com.kolos.bookstore.service.dto.UserRegistrationDto;
-import com.kolos.bookstore.service.exception.AppException;
-import com.kolos.bookstore.service.exception.DuplicateEmailException;
-import com.kolos.bookstore.service.exception.NotFoundException;
-import com.kolos.bookstore.service.exception.UserInputValidationException;
+import com.kolos.bookstore.service.exception.*;
 import com.kolos.bookstore.service.util.MessageManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.kolos.bookstore.service.util.PageUtil.getTotalPages;
@@ -67,7 +63,6 @@ public class UserServiceImpl implements UserService {
         pageableDto.setTotalItems(count);
         pageableDto.setTotalPages(pages);
         return users;
-
     }
 
     @Transactional
@@ -77,7 +72,7 @@ public class UserServiceImpl implements UserService {
         String emailToBeSaved = dto.getEmail();
         User byEmail = userRepository.findByEmail(emailToBeSaved);
         if (byEmail != null) {
-            throw new DuplicateEmailException(messageManager.getMessage("user.emailExists") + emailToBeSaved);
+            throw new UserInputValidationException(messageManager.getMessage("user.emailExists") + emailToBeSaved);
         }
         User user = serviceMapper.toEntity(dto);
         user.setPassword(digestService.hash(dto.getPassword()));
@@ -91,7 +86,7 @@ public class UserServiceImpl implements UserService {
         String emailToBeSaved = dto.getEmail();
         User byEmail = userRepository.findByEmail(emailToBeSaved);
         if (byEmail != null && !byEmail.getId().equals(dto.getId())) {
-            throw new RuntimeException(messageManager.getMessage("user.emailExists") + emailToBeSaved);
+            throw new UpdateFailedException(messageManager.getMessage("user.emailExists") + emailToBeSaved);
         }
         log.debug("Calling update");
         User user = serviceMapper.toEntity(dto);
@@ -138,7 +133,7 @@ public class UserServiceImpl implements UserService {
         String hashed = digestService.hash(password);
         User user = userRepository.findByEmail(email);
         if (user == null || !user.getPassword().equals(hashed)) {
-            throw new UserInputValidationException(messageManager.getMessage("user.notPasAndEmail"));
+            throw new AuthenticationFailedException(messageManager.getMessage("user.notPasAndEmail"));
         }
         return serviceMapper.toDto(user);
     }
@@ -147,14 +142,8 @@ public class UserServiceImpl implements UserService {
     private void validation(UserRegistrationDto userRegistrationDto) {
         String emailToBeSaved = userRegistrationDto.getEmail();
         User byEmail = userRepository.findByEmail(emailToBeSaved);
-        List<String> errors = new ArrayList<>();
         if (byEmail != null) {
-            errors.add(messageManager.getMessage("user.emailAlreadyInUse"));
-        } else if (userRegistrationDto.getPassword().length() < 6) {
-            errors.add(messageManager.getMessage("user.passwordTooShort"));
-        }
-        if (!errors.isEmpty()) {
-            throw new UserInputValidationException(errors);
+            throw new UserInputValidationException(messageManager.getMessage("user.emailAlreadyInUse"));
         }
     }
 }
