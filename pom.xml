@@ -21,11 +21,10 @@
         <jakarta.servlet.jsp-api.version>4.0.0</jakarta.servlet.jsp-api.version>
         <jakarta.servlet.jsp.jstl.version>3.0.1</jakarta.servlet.jsp.jstl.version>
         <jakarta.servlet.jsp.jstl-api.version>3.0.0</jakarta.servlet.jsp.jstl-api.version>
+        <jakarta.annotation.version>3.0.0</jakarta.annotation.version>
+        <jakarta.persistence.version>3.2.0</jakarta.persistence.version>
         <lombok.version>1.18.34</lombok.version>
         <org.springframework.version>6.1.12</org.springframework.version>
-        <jakarta.annotation.version>3.0.0</jakarta.annotation.version>
-        <HikariCP.version>5.1.0</HikariCP.version>
-        <jakarta.persistence.version>3.2.0</jakarta.persistence.version>
         <org.hibernate.orm.version>6.6.0.Final</org.hibernate.orm.version>
         <spring-orm.version>6.1.12</spring-orm.version>
     </properties>
@@ -35,10 +34,15 @@
 
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-orm</artifactId>
+            <artifactId>spring-webmvc</artifactId>
             <version>${spring-orm.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+            <version>${spring-orm.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>jakarta.persistence</groupId>
@@ -46,14 +50,11 @@
             <version>${jakarta.persistence.version}</version>
         </dependency>
 
-
         <dependency>
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
             <version>${org.hibernate.orm.version}</version>
         </dependency>
-
-
 
         <dependency>
             <groupId>org.springframework</groupId>
@@ -62,18 +63,10 @@
         </dependency>
 
         <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-            <version>${HikariCP.version}</version>
-        </dependency>
-
-
-        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>${org.springframework.version}</version>
         </dependency>
-
 
         <dependency>
             <groupId>jakarta.annotation</groupId>
@@ -147,8 +140,23 @@
 
     </dependencies>
 
+
+
     <build>
         <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <source>21</source>
+                    <target>21</target>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

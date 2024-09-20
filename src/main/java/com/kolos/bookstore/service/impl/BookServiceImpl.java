@@ -8,6 +8,7 @@ import com.kolos.bookstore.service.dto.BookDto;
 import com.kolos.bookstore.service.dto.PageableDto;
 import com.kolos.bookstore.service.exception.AppException;
 import com.kolos.bookstore.service.exception.NotFoundException;
+import com.kolos.bookstore.service.exception.UpdateFailedException;
 import com.kolos.bookstore.service.util.MessageManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -68,7 +69,6 @@ public class BookServiceImpl implements BookService {
     @Transactional
     @Override
     public BookDto create(BookDto dto) {
-        log.debug("Calling create");
         String byIsbnSaved = dto.getIsbn();
         Book byIsbn = bookRepository.findByIsbn(byIsbnSaved);
         if (byIsbn != null) {
@@ -86,7 +86,7 @@ public class BookServiceImpl implements BookService {
         String isbnSaved = dto.getIsbn();
         Book byIsbn = bookRepository.findByIsbn(isbnSaved);
         if (byIsbn != null && !byIsbn.getId().equals(dto.getId())) {
-            throw new AppException(messageManager.getMessage("book.alreadyExists") + isbnSaved);
+            throw new UpdateFailedException(messageManager.getMessage("book.alreadyExists") + isbnSaved);
         }
         Book book = serviceMapper.toEntity(dto);
         Book updated = bookRepository.save(book);
@@ -99,7 +99,7 @@ public class BookServiceImpl implements BookService {
         log.debug("Calling delete");
         boolean deleted = bookRepository.delete(id);
         if (!deleted) {
-            throw new AppException(messageManager.getMessage("book.not_found_delete") + id);
+            throw new NotFoundException(messageManager.getMessage("book.not_found_delete") + id);
         }
 
     }
