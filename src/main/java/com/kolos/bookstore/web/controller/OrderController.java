@@ -4,6 +4,10 @@ import com.kolos.bookstore.service.OrderService;
 import com.kolos.bookstore.service.dto.*;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,9 +37,10 @@ public class OrderController {
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "page_size", defaultValue = "5") int pageSize,
             Model model) {
-        PageableDto pageableDto = new PageableDto(page, pageSize);
-        List<OrderDto> orders = orderService.getAll(pageableDto);
-        addAttribute(model, orders, pageableDto);
+        Sort sort = Sort.by(Sort.Direction.ASC, "id");
+        Pageable pageable = PageRequest.of(page, pageSize, sort);
+        Page<OrderDto> pages = orderService.getAll(pageable);
+        addAttribute(model, pages);
         return "order/orders";
     }
 
@@ -43,9 +48,10 @@ public class OrderController {
     public String getOrdersUser(@PathVariable Long id, Model model,
                                 @RequestParam(value = "page", defaultValue = "1") int page,
                                 @RequestParam(value = "page_size", defaultValue = "5") int pageSize) {
-        PageableDto pageableDto = new PageableDto(page, pageSize);
-        List<OrderDto> orders = orderService.getOrdersByUserId(id, pageableDto);
-        addAttribute(model, orders, pageableDto);
+        Sort sort = Sort.by(Sort.Direction.ASC, "id");
+        Pageable pageable = PageRequest.of(page, pageSize, sort);
+        Page<OrderDto> pages = orderService.getOrdersByUserId(id, pageable);
+        addAttribute(model, pages);
         return "order/ordersUser";
     }
 
@@ -56,9 +62,9 @@ public class OrderController {
     }
 
     @PostMapping("/cancelOrder/{id}")
-    public String cancelOrder(@PathVariable Long id, Model model) {
+    public String cancelOrder(@PathVariable Long id) {
         orderService.cancelOrder(id);
-        return "redirect:/orders/getAll";
+        return "redirect:/";
     }
 
     @PostMapping("/order/create")
@@ -117,9 +123,10 @@ public class OrderController {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    private static void addAttribute(Model model, List<OrderDto> orders, PageableDto pageableDto) {
-        model.addAttribute("orders", orders);
-        model.addAttribute("page", pageableDto.getPage());
-        model.addAttribute("totalPages", pageableDto.getTotalPages());
+
+    private static void addAttribute(Model model, Page<OrderDto> pages) {
+        model.addAttribute("orders", pages.getContent());
+        model.addAttribute("page", pages.getNumber());
+        model.addAttribute("totalPages", pages.getTotalPages());
     }
 }
