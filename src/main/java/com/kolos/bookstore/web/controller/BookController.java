@@ -2,16 +2,18 @@ package com.kolos.bookstore.web.controller;
 
 import com.kolos.bookstore.service.BookService;
 import com.kolos.bookstore.service.dto.BookDto;
-import com.kolos.bookstore.service.dto.PageableDto;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RequiredArgsConstructor
@@ -33,9 +35,10 @@ public class BookController {
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "page_size", defaultValue = "5") int pageSize,
             Model model) {
-        PageableDto pageableDto = new PageableDto(page, pageSize);
-        List<BookDto> books = bookService.getAll(pageableDto);
-        addAttribute(model, books, page, pageableDto);
+        Sort sort = Sort.by(Sort.Direction.ASC, "id");
+        Pageable pageable = PageRequest.of(page, pageSize, sort);
+        Page<BookDto> pages = bookService.getAll(pageable);
+        addAttribute(model, pages);
         return "book/books";
     }
 
@@ -45,7 +48,6 @@ public class BookController {
     }
 
     @PostMapping("/create")
-    @ResponseStatus(HttpStatus.CREATED)
     public String createBook(@ModelAttribute BookDto bookDto, Model model) {
         BookDto createdBook = bookService.create(bookDto);
         model.addAttribute("book", createdBook);
@@ -75,9 +77,10 @@ public class BookController {
     public String getBookByTitle(@RequestParam String title, Model model,
                                  @RequestParam(value = "page", defaultValue = "1") int page,
                                  @RequestParam(value = "page_size", defaultValue = "5") int pageSize) {
-        PageableDto pageableDto = new PageableDto(page, pageSize);
-        List<BookDto> books = bookService.getSearchBooks(title, pageableDto);
-        addAttribute(model, books, pageableDto.getPage(), pageableDto);
+        Sort sort = Sort.by(Sort.Direction.ASC, "id");
+        Pageable pageable = PageRequest.of(page, pageSize, sort);
+        Page<BookDto> pages = bookService.getSearchBooks(title, pageable);
+        addAttribute(model, pages);
         return "book/booksSearch";
     }
 
@@ -93,11 +96,9 @@ public class BookController {
         return "redirect:/books/getAll";
     }
 
-
-    private static void addAttribute(Model model, List<BookDto> books, long pageableDto, PageableDto pageableDto1) {
-        model.addAttribute("books", books);
-        model.addAttribute("page", pageableDto);
-        model.addAttribute("totalPages", pageableDto1.getTotalPages());
+    private static void addAttribute(Model model, Page<BookDto> pages) {
+        model.addAttribute("books", pages.getContent());
+        model.addAttribute("page", pages.getNumber());
+        model.addAttribute("totalPages", pages.getTotalPages());
     }
-
 }
