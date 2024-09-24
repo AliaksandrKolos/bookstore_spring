@@ -35,15 +35,15 @@
                 <li><a href="${pageContext.request.contextPath}/logOut"><fmt:message key="navbar.log_out"/></a></li>
 
                 <c:if test="${sessionScope.user.role == 'ADMIN' || sessionScope.user.role == 'MANAGER'}">
-                    <li><a href="${pageContext.request.contextPath}/users/getAll?page=1&page_size=5"><fmt:message key="navbar.users"/></a></li>
+                    <li><a href="${pageContext.request.contextPath}/users/getAll?page=0&page_size=5"><fmt:message key="navbar.users"/></a></li>
                     <li><a href="${pageContext.request.contextPath}/books/create"><fmt:message key="navbar.add_book"/></a></li>
-                    <li><a href="${pageContext.request.contextPath}/orders/getAll?page=1&page_size=5"><fmt:message key="navbar.all_orders"/></a></li>
+                    <li><a href="${pageContext.request.contextPath}/orders/getAll?page=0&page_size=5"><fmt:message key="navbar.all_orders"/></a></li>
                 </c:if>
                 <li><a href="${pageContext.request.contextPath}/cart"><fmt:message key="navbar.cart"/></a></li>
-                <li><a href="${pageContext.request.contextPath}/orders/orders_user/${sessionScope.user.id}"><fmt:message key="navbar.my_order"/></a></li>
+                <li><a href="${pageContext.request.contextPath}/orders/orders_user/${sessionScope.user.id}?page=0&page_size=5"><fmt:message key="navbar.my_order"/></a></li>
             </c:otherwise>
         </c:choose>
-        <li><a href="${pageContext.request.contextPath}/books/getAll?page=1&page_size=5"><fmt:message key="navbar.all_books"/></a></li>
+        <li><a href="${pageContext.request.contextPath}/books/getAll?page=0&page_size=5"><fmt:message key="navbar.all_books"/></a></li>
         <li><a href="${pageContext.request.contextPath}/changeLanguage?lang=en">English</a></li>
         <li><a href="${pageContext.request.contextPath}/changeLanguage?lang=ru">Русский</a></li>
         <li><a href="${pageContext.request.contextPath}/changeLanguage?lang=de">Deutsch</a></li>

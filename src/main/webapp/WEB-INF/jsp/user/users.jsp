@@ -38,24 +38,26 @@
     </form>
 
     <div class="pagination">
-        <a href="${pageContext.request.contextPath}/users/getAll?page=1&page_size=${param.page_size}">
+        <a href="${pageContext.request.contextPath}/users/getAll?page=0&page_size=${param.page_size}">
             <fmt:message key="users.first"/>
         </a>
 
-        <a href="${pageContext.request.contextPath}/users/getAll?page=${page <= 1 ? 1 : page - 1}&page_size=${param.page_size}">
+        <a href="${pageContext.request.contextPath}/users/getAll?page=${page <= 0 ? 0 : page - 1}&page_size=${param.page_size}">
             <fmt:message key="users.prev"/>
         </a>
 
-        <span class="current-page"><c:out value="${page}"/></span>
+        <span class="current-page"><c:out value="${page + 1}"/></span>
 
-        <a href="${pageContext.request.contextPath}/users/getAll?page=${page < totalPages ? page + 1 : totalPages}&page_size=${param.page_size}">
+        <a href="${pageContext.request.contextPath}/users/getAll?page=${page < totalPages - 1 ? page + 1 : totalPages - 1}&page_size=${param.page_size}">
             <fmt:message key="users.next"/>
         </a>
 
-        <a href="${pageContext.request.contextPath}/users/getAll?page=${totalPages}&page_size=${param.page_size}">
+        <a href="${pageContext.request.contextPath}/users/getAll?page=${totalPages - 1}&page_size=${param.page_size}">
             <fmt:message key="users.last"/>
         </a>
     </div>
+
+
 
     <table>
         <thead>

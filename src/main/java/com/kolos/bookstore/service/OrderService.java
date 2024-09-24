@@ -4,12 +4,14 @@ package com.kolos.bookstore.service;
 import com.kolos.bookstore.service.dto.PageableDto;
 import com.kolos.bookstore.service.dto.OrderDto;
 import com.kolos.bookstore.service.dto.OrderStatusUpdateDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface OrderService {
 
-    List<OrderDto> getOrdersByUserId(Long userId, PageableDto pageableDto);
+    Page<OrderDto> getOrdersByUserId(Long id, Pageable pageable);
 
     void changeStatus(Long orderId, OrderStatusUpdateDto.Status dtoStatus);
 
@@ -17,7 +19,7 @@ public interface OrderService {
 
     OrderDto get(Long id);
 
-    List<OrderDto> getAll(PageableDto pageableDto);
+    Page<OrderDto> getAll(Pageable pageable);
 
     OrderDto create(OrderDto dto);
 

@@ -14,12 +14,12 @@ public enum CommandSecurityList {
 
         // admin level
         securityConfig.put("/users/edit", UserDto.Role.ADMIN);
-        securityConfig.put("/users/delete", UserDto.Role.ADMIN);
+        securityConfig.put("/users/delete/{id:\\d+}", UserDto.Role.ADMIN);
 
         // manager level
         securityConfig.put("books/create", UserDto.Role.MANAGER);
         securityConfig.put("/books/edit", UserDto.Role.MANAGER);
-        securityConfig.put("/books/delete", UserDto.Role.MANAGER);
+        securityConfig.put("/books/delete/{id:\\d+}", UserDto.Role.MANAGER);
         securityConfig.put("/users/getAll", UserDto.Role.MANAGER);
         securityConfig.put("/users/create", UserDto.Role.MANAGER);
         securityConfig.put("/orders/getAll", UserDto.Role.MANAGER);

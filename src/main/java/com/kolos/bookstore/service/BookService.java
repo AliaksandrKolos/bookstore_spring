@@ -2,6 +2,8 @@ package com.kolos.bookstore.service;
 
 import com.kolos.bookstore.service.dto.PageableDto;
 import com.kolos.bookstore.service.dto.BookDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -10,9 +12,9 @@ public interface BookService {
 
     BookDto get(Long id);
 
-    List<BookDto> getAll(PageableDto pageableDto);
+    Page<BookDto> getAll(Pageable pageable);
 
-    List<BookDto> getAllByAuthor(String author, PageableDto pageableDto);
+    Page<BookDto> getAllByAuthor(String author, Pageable pageable);
 
     BookDto create(BookDto dto);
 
@@ -20,5 +22,5 @@ public interface BookService {
 
     void delete(Long id);
 
-    List<BookDto> getSearchBooks(String searchMessage, PageableDto pageableDto);
+    Page<BookDto> getSearchBooks(String searchMessage, Pageable pageable);
 }

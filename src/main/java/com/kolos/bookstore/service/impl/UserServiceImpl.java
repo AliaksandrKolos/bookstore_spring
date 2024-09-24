@@ -5,7 +5,6 @@ import com.kolos.bookstore.data.repository.UserRepository;
 import com.kolos.bookstore.service.DigestService;
 import com.kolos.bookstore.service.ServiceMapper;
 import com.kolos.bookstore.service.UserService;
-import com.kolos.bookstore.service.dto.PageableDto;
 import com.kolos.bookstore.service.dto.UserDto;
 import com.kolos.bookstore.service.dto.UserRegistrationDto;
 import com.kolos.bookstore.service.exception.*;
@@ -13,11 +12,9 @@ import com.kolos.bookstore.service.util.MessageManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-
-import static com.kolos.bookstore.service.util.PageUtil.getTotalPages;
 
 @Service
 @Slf4j
@@ -45,7 +42,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto get(Long id) {
         log.debug("Calling getById {}", id);
-        User user = userRepository.find(id);
+        User user = userRepository.findById(id).orElse(null);
         if (user == null) {
             throw new NotFoundException(messageManager.getMessage("user.notFoundUser") + id);
         }
@@ -53,16 +50,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getAll(PageableDto pageableDto) {
+    public Page<UserDto> getAll(Pageable pageable) {
         log.debug("Colling getAll");
-        List<UserDto> users = userRepository.findAll(pageableDto.getLimit(), pageableDto.getOffset()).stream()
-                .map(serviceMapper::toDto)
-                .toList();
-        long count = userRepository.countAll();
-        long pages = getTotalPages(pageableDto, count);
-        pageableDto.setTotalItems(count);
-        pageableDto.setTotalPages(pages);
-        return users;
+        return userRepository.findAll(pageable).map(serviceMapper::toDto);
+    }
+
+    @Override
+    public Page<UserDto> getByLastName(String lastName, Pageable pageable) {
+        log.debug("Calling getByLastName {}", lastName);
+        return userRepository.findAllByLastName(lastName, pageable).map(serviceMapper::toDto);
     }
 
     @Transactional
@@ -70,7 +66,7 @@ public class UserServiceImpl implements UserService {
     public UserDto create(UserDto dto) {
         log.debug("Calling create");
         String emailToBeSaved = dto.getEmail();
-        User byEmail = userRepository.findByEmail(emailToBeSaved);
+        User byEmail = userRepository.findByEmail(emailToBeSaved).orElse(null);
         if (byEmail != null) {
             throw new UserInputValidationException(messageManager.getMessage("user.emailExists") + emailToBeSaved);
         }
@@ -84,7 +80,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto update(UserDto dto) {
         String emailToBeSaved = dto.getEmail();
-        User byEmail = userRepository.findByEmail(emailToBeSaved);
+        User byEmail = userRepository.findByEmail(emailToBeSaved).orElse(null);
         if (byEmail != null && !byEmail.getId().equals(dto.getId())) {
             throw new UpdateFailedException(messageManager.getMessage("user.emailExists") + emailToBeSaved);
         }
@@ -99,40 +95,26 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(Long id) {
         log.debug("Calling delete");
-        boolean deleted = userRepository.delete(id);
+        boolean deleted = userRepository.existsById(id);
         if (!deleted) {
             throw new AppException(messageManager.getMessage("user.couldntDelete") + id);
         }
+        userRepository.deleteById(id);
     }
 
     @Override
     public UserDto getByEmail(String email) {
         log.debug("Calling getByEmail {}", email);
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email).orElse(null);
         return serviceMapper.toDto(user);
-    }
-
-    @Override
-    public List<UserDto> getByLastName(String lastName, PageableDto pageableDto) {
-        log.debug("Calling getByLastName {}", lastName);
-        List<UserDto> users = userRepository.findByLastName(lastName, pageableDto.getLimit(), pageableDto.getOffset())
-                .stream()
-                .map(serviceMapper::toDto)
-                .toList();
-        long count = userRepository.countAll();
-        long pages = getTotalPages(pageableDto, count);
-        pageableDto.setTotalItems(count);
-        pageableDto.setTotalPages(pages);
-        return users;
     }
 
     @Transactional
     @Override
     public UserDto login(String email, String password) {
         log.debug("Calling login {}", email);
-        String hashed = digestService.hash(password);
-        User user = userRepository.findByEmail(email);
-        if (user == null || !user.getPassword().equals(hashed)) {
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null || !digestService.verify(password, user.getPassword())) {
             throw new AuthenticationFailedException(messageManager.getMessage("user.notPasAndEmail"));
         }
         return serviceMapper.toDto(user);
@@ -141,7 +123,7 @@ public class UserServiceImpl implements UserService {
 
     private void validation(UserRegistrationDto userRegistrationDto) {
         String emailToBeSaved = userRegistrationDto.getEmail();
-        User byEmail = userRepository.findByEmail(emailToBeSaved);
+        User byEmail = userRepository.findByEmail(emailToBeSaved).orElse(null);
         if (byEmail != null) {
             throw new UserInputValidationException(messageManager.getMessage("user.emailAlreadyInUse"));
         }

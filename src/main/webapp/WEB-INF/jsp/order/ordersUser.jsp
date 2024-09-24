@@ -31,12 +31,26 @@
 </c:if>
 
 <div class="pagination">
-    <a href="orders/orders_user/${sessionScope.user.id}&page=1"><fmt:message key="orders.first"/></a>
-    <a href="orders/orders_user/${sessionScope.user.id}&page=${page <= 1 ? 1 : page - 1}"><fmt:message key="orders.prev"/></a>
-    <span class="current-page"><c:out value="${page}"/></span>
-    <a href="orders/orders_user/${sessionScope.user.id}&page=${totalPages > page ? page + 1 : page}"><fmt:message key="orders.next"/></a>
-    <a href="orders/orders_user/${sessionScope.user.id}&page=${totalPages}"><fmt:message key="orders.last"/></a>
+    <a href="${pageContext.request.contextPath}/orders/orders_user/${sessionScope.user.id}?page=0&page_size=${param.page_size}">
+        <fmt:message key="orders.first"/>
+    </a>
+
+    <a href="${pageContext.request.contextPath}/orders/orders_user/${sessionScope.user.id}?page=${page <= 0 ? 0 : page - 1}&page_size=${param.page_size}">
+        <fmt:message key="orders.prev"/>
+    </a>
+
+    <span class="current-page"><c:out value="${page + 1}"/></span>
+
+    <a href="${pageContext.request.contextPath}/orders/orders_user/${sessionScope.user.id}?page=${page < totalPages - 1 ? page + 1 : totalPages - 1}&page_size=${param.page_size}">
+        <fmt:message key="orders.next"/>
+    </a>
+
+    <a href="${pageContext.request.contextPath}/orders/orders_user/${sessionScope.user.id}?page=${totalPages - 1}&page_size=${param.page_size}">
+        <fmt:message key="orders.last"/>
+    </a>
 </div>
+
+
 
 <table>
     <tr>

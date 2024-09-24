@@ -18,12 +18,14 @@
 
 <html>
 <head>
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
     <title><fmt:message key="index.title"/></title>
 </head>
 <body>
 <jsp:include page="navbar.jsp"/>
 <h1><fmt:message key="index.heading"/></h1>
 <h1><fmt:message key="index.welcome"/> ${sessionScope.user != null ? user.email : "Guest"} </h1>
-<img src="/images/lib.png" alt="library">
+<img src="/images/00.jpg" alt="library">
+
 </body>
 </html>

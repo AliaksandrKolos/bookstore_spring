@@ -1,17 +1,16 @@
 package com.kolos.bookstore.service;
 
 
-import com.kolos.bookstore.service.dto.PageableDto;
 import com.kolos.bookstore.service.dto.UserDto;
 import com.kolos.bookstore.service.dto.UserRegistrationDto;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface UserService {
 
     UserDto get(Long id);
 
-    List<UserDto> getAll(PageableDto pageableDto);
+    Page<UserDto> getAll(Pageable pageable);
 
     UserDto create(UserDto dto);
 
@@ -23,7 +22,7 @@ public interface UserService {
 
     UserDto getByEmail(String email);
 
-    List<UserDto> getByLastName(String lastName, PageableDto pageableDto);
+    Page<UserDto> getByLastName(String lastName, Pageable pageable);
 
     UserDto login(String email, String password);
 
