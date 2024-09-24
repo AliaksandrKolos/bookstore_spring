@@ -1,16 +1,18 @@
 package com.kolos.bookstore.web.controller;
 
 import com.kolos.bookstore.service.UserService;
-import com.kolos.bookstore.service.dto.PageableDto;
 import com.kolos.bookstore.service.dto.UserDto;
 import com.kolos.bookstore.service.dto.UserRegistrationDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RequiredArgsConstructor
 @Controller
@@ -24,11 +26,13 @@ public class UserController {
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "page_size", defaultValue = "5") int pageSize,
             Model model) {
-        PageableDto pageableDto = new PageableDto(page, pageSize);
-        List<UserDto> users = userService.getAll(pageableDto);
-        addAttribute(page, model, users, pageableDto);
+        Sort sort = Sort.by(Sort.Direction.ASC, "id");
+        Pageable pageable = PageRequest.of(page, pageSize, sort);
+        Page<UserDto> pages = userService.getAll(pageable);
+        addAttribute(model, pages);
         return "user/users";
     }
+
 
 
     @GetMapping("/{id}")
@@ -47,7 +51,7 @@ public class UserController {
 
     @GetMapping("/create")
     public String createFormUser() {
-        return "user/userCreateForm";
+        return "user/userRegistrationForm";
     }
 
     @PostMapping("/create")
@@ -87,16 +91,17 @@ public class UserController {
     public String searchByLastNameUser(@RequestParam String lastName, Model model,
                                        @RequestParam(value = "page", defaultValue = "1") int page,
                                        @RequestParam(value = "page_size", defaultValue = "5") int pageSize) {
-        PageableDto pageableDto = new PageableDto(page, pageSize);
-        List<UserDto> users = userService.getByLastName(lastName, pageableDto);
-        addAttribute(page, model, users, pageableDto);
+        Sort sort = Sort.by(Sort.Direction.ASC, "id");
+        Pageable pageable = PageRequest.of(page, pageSize, sort);
+        Page<UserDto> pages = userService.getByLastName(lastName, pageable);
+        addAttribute(model, pages);
         return "user/usersSearch";
     }
 
-    private static void addAttribute(int page, Model model, List<UserDto> users, PageableDto pageableDto) {
-        model.addAttribute("users", users);
-        model.addAttribute("page", page);
-        model.addAttribute("totalPages", pageableDto.getTotalPages());
+    private static void addAttribute(Model model, Page<UserDto> pages) {
+        model.addAttribute("users", pages.getContent());
+        model.addAttribute("page", pages.getNumber());
+        model.addAttribute("totalPages", pages.getTotalPages());
     }
 
 
