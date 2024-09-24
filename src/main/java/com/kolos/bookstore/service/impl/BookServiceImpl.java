@@ -5,7 +5,6 @@ import com.kolos.bookstore.data.repository.BookRepository;
 import com.kolos.bookstore.service.BookService;
 import com.kolos.bookstore.service.ServiceMapper;
 import com.kolos.bookstore.service.dto.BookDto;
-import com.kolos.bookstore.service.dto.PageableDto;
 import com.kolos.bookstore.service.exception.AppException;
 import com.kolos.bookstore.service.exception.NotFoundException;
 import com.kolos.bookstore.service.exception.UpdateFailedException;
@@ -13,12 +12,10 @@ import com.kolos.bookstore.service.util.MessageManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.kolos.bookstore.service.util.PageUtil.getTotalPages;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -32,7 +29,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookDto get(Long id) {
         log.debug("Calling getById {}", id);
-        Book book = bookRepository.find(id);
+        Book book = bookRepository.findById(id).orElse(null);
         if (book == null) {
             throw new NotFoundException(messageManager.getMessage("book.not_found") + id);
         }
@@ -41,36 +38,22 @@ public class BookServiceImpl implements BookService {
 
 
     @Override
-    public List<BookDto> getAll(PageableDto pageableDto) {
+    public Page<BookDto> getAll(Pageable pageable) {
         log.debug("Calling getAll");
-        List<BookDto> books = bookRepository.findAll(pageableDto.getLimit(), pageableDto.getOffset())
-                .stream()
-                .map(serviceMapper::toDtoShort).
-                toList();
-        long count = bookRepository.countAll();
-        long pages = getTotalPages(pageableDto, count);
-        pageableDto.setTotalItems(count);
-        pageableDto.setTotalPages(pages);
-        return books;
+        return bookRepository.findAll(pageable).map(serviceMapper::toDtoShort);
+
     }
 
     @Override
-    public List<BookDto> getAllByAuthor(String author, PageableDto pageableDto) {
-        List<BookDto> books = bookRepository.findByAuthor(author, pageableDto.getLimit(), pageableDto.getOffset()).stream()
-                .map(serviceMapper::toDtoShort)
-                .toList();
-        long count = bookRepository.countAll(author);
-        long pages = getTotalPages(pageableDto, count);
-        pageableDto.setTotalItems(count);
-        pageableDto.setTotalPages(pages);
-        return books;
+    public Page<BookDto> getAllByAuthor(String author, Pageable pageable) {
+        return bookRepository.findByAuthor(author, pageable).map(serviceMapper::toDto);
     }
 
     @Transactional
     @Override
     public BookDto create(BookDto dto) {
         String byIsbnSaved = dto.getIsbn();
-        Book byIsbn = bookRepository.findByIsbn(byIsbnSaved);
+        Book byIsbn = bookRepository.findByIsbn(byIsbnSaved).orElse(null);
         if (byIsbn != null) {
             throw new AppException(messageManager.getMessage("book.already_exists") + byIsbnSaved);
         }
@@ -84,7 +67,7 @@ public class BookServiceImpl implements BookService {
     public BookDto update(BookDto dto) {
         log.debug("Calling update");
         String isbnSaved = dto.getIsbn();
-        Book byIsbn = bookRepository.findByIsbn(isbnSaved);
+        Book byIsbn = bookRepository.findByIsbn(isbnSaved).orElse(null);
         if (byIsbn != null && !byIsbn.getId().equals(dto.getId())) {
             throw new UpdateFailedException(messageManager.getMessage("book.alreadyExists") + isbnSaved);
         }
@@ -97,25 +80,17 @@ public class BookServiceImpl implements BookService {
     @Override
     public void delete(Long id) {
         log.debug("Calling delete");
-        boolean deleted = bookRepository.delete(id);
+        boolean deleted = bookRepository.existsById(id);
         if (!deleted) {
             throw new NotFoundException(messageManager.getMessage("book.not_found_delete") + id);
         }
-
+        bookRepository.deleteById(id);
     }
 
     @Override
-    public List<BookDto> getSearchBooks(String searchMessage, PageableDto pageableDto) {
+    public Page<BookDto> getSearchBooks(String searchMessage, Pageable pageable) {
         log.debug("Calling getAll");
-        List<Book> books = bookRepository.findAllByTitle(searchMessage, pageableDto.getLimit(), pageableDto.getOffset());
-        List<BookDto> bookDtos = new ArrayList<>();
-        for (Book book : books) {
-            bookDtos.add(serviceMapper.toDtoShort(book));
-        }
-        long count = bookRepository.countAll(searchMessage);
-        long pages = getTotalPages(pageableDto, count);
-        pageableDto.setTotalItems(count);
-        pageableDto.setTotalPages(pages);
-        return bookDtos;
+        return bookRepository.findAllByTitle(searchMessage, pageable).map(serviceMapper::toDto);
+
     }
 }
