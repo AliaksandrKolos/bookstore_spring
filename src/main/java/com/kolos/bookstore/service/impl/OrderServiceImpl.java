@@ -7,7 +7,6 @@ import com.kolos.bookstore.service.OrderService;
 import com.kolos.bookstore.service.ServiceMapper;
 import com.kolos.bookstore.service.dto.OrderDto;
 import com.kolos.bookstore.service.dto.OrderStatusUpdateDto;
-import com.kolos.bookstore.service.dto.PageableDto;
 import com.kolos.bookstore.service.exception.InvalidOrderStatusTransitionException;
 import com.kolos.bookstore.service.exception.NotFoundException;
 import com.kolos.bookstore.service.util.MessageManager;
@@ -15,11 +14,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-
-import static com.kolos.bookstore.service.util.PageUtil.getTotalPages;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +31,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDto get(Long id) {
-        Order order = orderRepository.find(id);
+        Order order = orderRepository.findById(id).orElse(null);
         if (order == null) {
             throw new NotFoundException(messageManager.getMessage("order.not_found") + id);
         }
@@ -42,15 +39,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderDto> getAll(PageableDto pageableDto) {
-        List<OrderDto> orders = orderRepository.findAll(pageableDto.getLimit(), pageableDto.getOffset()).stream()
-                .map(serviceMapper::toDto)
-                .toList();
-        long count = orderRepository.countAll();
-        long pages = getTotalPages(pageableDto, count);
-        pageableDto.setTotalItems(count);
-        pageableDto.setTotalPages(pages);
-        return orders;
+    public Page<OrderDto> getAll(Pageable pageable) {
+        return orderRepository.findAll(pageable).map(serviceMapper::toDto);
+
     }
 
 
@@ -65,21 +56,14 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public List<OrderDto> getOrdersByUserId(Long id, PageableDto pageable) {
-        List<OrderDto> orders = orderRepository.findByUserId(id, pageable.getLimit(), pageable.getOffset()).stream()
-                .map(serviceMapper::toDto)
-                .toList();
-        long count = orderRepository.countAllById(id);
-        long pages = getTotalPages(pageable, count);
-        pageable.setTotalItems(count);
-        pageable.setTotalPages(pages);
-        return orders;
+    public Page<OrderDto> getOrdersByUserId(Long id, Pageable pageable) {
+        return orderRepository.findByUserId(id, pageable).map(serviceMapper::toDto);
     }
 
     @Transactional
     @Override
     public void changeStatus(Long orderId, OrderStatusUpdateDto.Status dtoStatus) {
-        Order order = orderRepository.find(orderId);
+        Order order = orderRepository.findById(orderId).orElse(null);
         validateChangeStatus(orderId, dtoStatus, order);
         order.setStatus(Order.Status.valueOf(dtoStatus.name()));
         orderRepository.save(order);
@@ -89,7 +73,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public void cancelOrder(Long orderId) {
-        Order order = orderRepository.find(orderId);
+        Order order = orderRepository.findById(orderId).orElse(null);
         if (order.getStatus().equals(Order.Status.CANCELLED)) {
             throw new InvalidOrderStatusTransitionException(messageManager.getMessage("order.cannot_change_cancelled"));
         }
@@ -98,7 +82,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
 
-    private  void validateChangeStatus(Long orderId, OrderStatusUpdateDto.Status dtoStatus, Order order) {
+    private void validateChangeStatus(Long orderId, OrderStatusUpdateDto.Status dtoStatus, Order order) {
         if (order == null) {
             throw new NotFoundException(messageManager.getMessage("order.not_found") + orderId);
         }
