@@ -38,24 +38,25 @@
     </form>
 
     <div class="pagination">
-        <a href="${pageContext.request.contextPath}/books/search_title?title=${param.title}&page=1&page_size=${param.page_size}">
+        <a href="${pageContext.request.contextPath}/books/search_title?title=${param.title}&page=0&page_size=${param.page_size}">
             <fmt:message key="books.first"/>
         </a>
 
-        <a href="${pageContext.request.contextPath}/books/search_title?title=${param.title}&page=${page <= 1 ? 1 : page - 1}&page_size=${param.page_size}">
+        <a href="${pageContext.request.contextPath}/books/search_title?title=${param.title}&page=${page <= 0 ? 0 : page - 1}&page_size=${param.page_size}">
             <fmt:message key="books.prev"/>
         </a>
 
         <c:out value="${page}"/>
 
-        <a href="${pageContext.request.contextPath}/books/search_title?title=${param.title}&page=${page < totalPages ? page + 1 : totalPages}&page_size=${param.page_size}">
+        <a href="${pageContext.request.contextPath}/books/search_title?title=${param.title}&page=${page < totalPages - 1 ? page + 1 : totalPages - 1}&page_size=${param.page_size}">
             <fmt:message key="books.next"/>
         </a>
 
-        <a href="${pageContext.request.contextPath}/books/search_title?title=${param.title}&page=${totalPages}&page_size=${param.page_size}">
+        <a href="${pageContext.request.contextPath}/books/search_title?title=${param.title}&page=${totalPages - 1}&page_size=${param.page_size}">
             <fmt:message key="books.last"/>
         </a>
     </div>
+
 
     <table>
         <thead>

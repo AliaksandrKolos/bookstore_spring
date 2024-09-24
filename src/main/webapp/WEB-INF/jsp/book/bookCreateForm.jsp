@@ -22,14 +22,14 @@
 <jsp:include page="../navbar.jsp"/>
 
 <h1><fmt:message key="bookCreateForm.header"/></h1>
-<form method="post" action="books/create">
-    <input type="text" placeholder="<fmt:message key="bookCreateForm.title"/>" name="title">
-    <input type="text" placeholder="<fmt:message key="bookCreateForm.author"/>" name="author">
-    <input type="text" placeholder="<fmt:message key="bookCreateForm.isbn"/>" name="isbn">
-    <input type="text" placeholder="<fmt:message key="bookCreateForm.genre"/>" name="genre">
-    <input type="number" placeholder="<fmt:message key="bookCreateForm.year"/>" name="year">
-    <input type="number" placeholder="<fmt:message key="bookCreateForm.pages"/>" name="pages">
-    <input name="price" type="text" placeholder="<fmt:message key="bookCreateForm.price"/>" pattern="\d+(\.\d+)?" title="price" required>
+<form method="post" action="/books/create">
+    <input type="text" placeholder="<fmt:message key='bookCreateForm.title'/>" name="title" required>
+    <input type="text" placeholder="<fmt:message key='bookCreateForm.author'/>" name="author" required>
+    <input type="text" placeholder="<fmt:message key='bookCreateForm.isbn'/>" name="isbn" required>
+    <input type="text" placeholder="<fmt:message key='bookCreateForm.genre'/>" name="genre" required>
+    <input type="number" placeholder="<fmt:message key='bookCreateForm.year'/>" name="year" required>
+    <input type="number" placeholder="<fmt:message key='bookCreateForm.pages'/>" name="pages" required>
+    <input name="price" type="text" placeholder="<fmt:message key='bookCreateForm.price'/>" pattern="\d+(\.\d+)?" title="price" required>
 
     <label for="cover"><fmt:message key="bookCreateForm.select_cover"/></label>
     <select id="cover" name="cover">
@@ -41,6 +41,7 @@
 
     <button type="submit" class="btn"><fmt:message key="bookCreateForm.submit_create_book"/></button>
 </form>
+
 
 </body>
 </html>

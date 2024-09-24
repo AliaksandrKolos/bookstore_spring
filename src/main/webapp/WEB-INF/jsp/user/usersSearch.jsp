@@ -39,20 +39,41 @@
     </form>
 
     <div class="pagination">
-        <a href="/users/search_lastName?page=1&page_size=${param.page_size}&lastName=${param.lastName}">
+        <a href="/users/search_lastName?page=0&page_size=${param.page_size}&lastName=${param.lastName}">
             <fmt:message key="users.first"/>
         </a>
-        <a href="/users/search_lastName?page=${page <= 1 ? 1 : page - 1}&page_size=${param.page_size}&lastName=${param.lastName}">
+        <a href="/users/search_lastName?page=${page <= 0 ? 0 : page - 1}&page_size=${param.page_size}&lastName=${param.lastName}">
             <fmt:message key="users.prev"/>
         </a>
-        <span class="current-page">${page}</span>
-        <a href="/users/search_lastName?page=${totalPages > page ? page + 1 : page}&page_size=${param.page_size}&lastName=${param.lastName}">
+        <span class="current-page">${page + 1}</span>
+        <a href="/users/search_lastName?page=${page < totalPages - 1 ? page + 1 : totalPages - 1}&page_size=${param.page_size}&lastName=${param.lastName}">
             <fmt:message key="users.next"/>
         </a>
-        <a href="/users/search_lastName?page=${totalPages}&page_size=${param.page_size}&lastName=${param.lastName}">
+        <a href="/users/search_lastName?page=${totalPages - 1}&page_size=${param.page_size}&lastName=${param.lastName}">
             <fmt:message key="users.last"/>
         </a>
     </div>
+
+<%--    <div class="pagination">--%>
+<%--        <a href="${pageContext.request.contextPath}/books/getAll?page=0&page_size=${param.page_size}">--%>
+<%--            <fmt:message key="books.first"/>--%>
+<%--        </a>--%>
+
+<%--        <a href="${pageContext.request.contextPath}/books/getAll?page=${page <= 0 ? 0 : page - 1}&page_size=${param.page_size}">--%>
+<%--            <fmt:message key="books.prev"/>--%>
+<%--        </a>--%>
+
+<%--        <c:out value="${page + 1}"/>--%>
+
+<%--        <a href="${pageContext.request.contextPath}/books/getAll?page=${page < totalPages - 1 ? page + 1 : totalPages - 1}&page_size=${param.page_size}">--%>
+<%--            <fmt:message key="books.next"/>--%>
+<%--        </a>--%>
+
+<%--        <a href="${pageContext.request.contextPath}/books/getAll?page=${totalPages - 1}&page_size=${param.page_size}">--%>
+<%--            <fmt:message key="books.last"/>--%>
+<%--        </a>--%>
+<%--    </div>--%>
+
 
     <table>
         <thead>

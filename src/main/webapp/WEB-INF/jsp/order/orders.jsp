@@ -26,20 +26,25 @@
 <h1>${orders.size() > 0 ? 'Your orders:' : 'No orders yet'}</h1>
 
 <div class="pagination">
-    <a href="<c:url value='/orders/getAll?page=1&page_size=${param.page_size}'/>">
+    <a href="${pageContext.request.contextPath}/orders/getAll?page=0&page_size=${param.page_size}">
         <fmt:message key="orders.first"/>
     </a>
-    <a href="<c:url value='/orders/getAll?page=${page <= 1 ? 1 : page - 1}&page_size=${param.page_size}'/>">
+
+    <a href="${pageContext.request.contextPath}/orders/getAll?page=${page <= 0 ? 0 : page - 1}&page_size=${param.page_size}">
         <fmt:message key="orders.prev"/>
     </a>
-    <span class="current-page"><c:out value="${page}"/></span>
-    <a href="<c:url value='/orders/getAll?page=${totalPages > page ? page + 1 : page}&page_size=${param.page_size}'/>">
+
+    <span class="current-page"><c:out value="${page + 1}"/></span>
+
+    <a href="${pageContext.request.contextPath}/orders/getAll?page=${page < totalPages - 1 ? page + 1 : totalPages - 1}&page_size=${param.page_size}">
         <fmt:message key="orders.next"/>
     </a>
-    <a href="<c:url value='/orders/getAll?page=${totalPages}&page_size=${param.page_size}'/>">
+
+    <a href="${pageContext.request.contextPath}/orders/getAll?page=${totalPages - 1}&page_size=${param.page_size}">
         <fmt:message key="orders.last"/>
     </a>
 </div>
+
 
 <table>
     <thead>
@@ -60,7 +65,7 @@
             <td><c:out value="${order.user.email}"/></td>
             <td><c:out value="${order.cost}"/></td>
             <td>
-                <form action="<c:url value='/orders/change_status'/>" method="post">
+                <form action="${pageContext.request.contextPath}/orders/change_status" method="post">
                     <input type="hidden" name="id" value="${order.id}"/>
                     <select name="status" onchange="this.form.submit()">
                         <option value="">Select Status</option>

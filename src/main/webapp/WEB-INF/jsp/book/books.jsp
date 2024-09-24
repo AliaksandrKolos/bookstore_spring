@@ -31,30 +31,31 @@
 <c:if test="${books != null && !books.isEmpty()}">
     <form method="get" action="${pageContext.request.contextPath}/books/search_title">
         <input type="text" placeholder="<fmt:message key='books.search'/>" name="title" value="${param.search}" />
-        <input type="hidden" name="page" value="${param.page != null ? param.page : 1}" />
+        <input type="hidden" name="page" value="${param.page != null ? param.page : 0}" />
         <input type="hidden" name="page_size" value="${param.page_size != null ? param.page_size : 5}" />
         <button type="submit" class="btn"><fmt:message key="books.search"/></button>
     </form>
 
     <div class="pagination">
-        <a href="${pageContext.request.contextPath}/books/getAll?page=1&page_size=${param.page_size}">
+        <a href="${pageContext.request.contextPath}/books/getAll?page=0&page_size=${param.page_size}">
             <fmt:message key="books.first"/>
         </a>
 
-        <a href="${pageContext.request.contextPath}/books/getAll?page=${page <= 1 ? 1 : page - 1}&page_size=${param.page_size}">
+        <a href="${pageContext.request.contextPath}/books/getAll?page=${page <= 0 ? 0 : page - 1}&page_size=${param.page_size}">
             <fmt:message key="books.prev"/>
         </a>
 
-        <c:out value="${page}"/>
+        <c:out value="${page + 1}"/>
 
-        <a href="${pageContext.request.contextPath}/books/getAll?page=${page < totalPages ? page + 1 : totalPages}&page_size=${param.page_size}">
+        <a href="${pageContext.request.contextPath}/books/getAll?page=${page < totalPages - 1 ? page + 1 : totalPages - 1}&page_size=${param.page_size}">
             <fmt:message key="books.next"/>
         </a>
 
-        <a href="${pageContext.request.contextPath}/books/getAll?page=${totalPages}&page_size=${param.page_size}">
+        <a href="${pageContext.request.contextPath}/books/getAll?page=${totalPages - 1}&page_size=${param.page_size}">
             <fmt:message key="books.last"/>
         </a>
     </div>
+
 
     <table>
         <thead>
