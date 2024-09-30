@@ -2,16 +2,17 @@ package com.kolos.bookstore.service.impl;
 
 import com.kolos.bookstore.data.entity.Book;
 import com.kolos.bookstore.data.repository.BookRepository;
+import com.kolos.bookstore.service.BookMapper;
 import com.kolos.bookstore.service.BookService;
-import com.kolos.bookstore.service.ServiceMapper;
 import com.kolos.bookstore.service.dto.BookDto;
 import com.kolos.bookstore.service.exception.AppException;
 import com.kolos.bookstore.service.exception.NotFoundException;
 import com.kolos.bookstore.service.exception.UpdateFailedException;
-import com.kolos.bookstore.service.util.MessageManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,30 +24,28 @@ import org.springframework.stereotype.Service;
 public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
-    private final ServiceMapper serviceMapper;
-    private final MessageManager messageManager;
+    private final MessageSource messageSource;
+    private final BookMapper bookMapper;
+
 
     @Override
     public BookDto get(Long id) {
         log.debug("Calling getById {}", id);
-        Book book = bookRepository.findById(id).orElse(null);
-        if (book == null) {
-            throw new NotFoundException(messageManager.getMessage("book.not_found") + id);
-        }
-        return serviceMapper.toDto(book);
+        Book book = bookRepository.findById(id).
+                orElseThrow(() -> new NotFoundException(messageSource.getMessage("book.not_found", new Object[0], LocaleContextHolder.getLocale())));
+        return bookMapper.toDto(book);
     }
-
 
     @Override
     public Page<BookDto> getAll(Pageable pageable) {
         log.debug("Calling getAll");
-        return bookRepository.findAll(pageable).map(serviceMapper::toDtoShort);
-
+        return bookRepository.findAll(pageable).map(bookMapper::toDtoShort);
     }
 
     @Override
     public Page<BookDto> getAllByAuthor(String author, Pageable pageable) {
-        return bookRepository.findByAuthor(author, pageable).map(serviceMapper::toDto);
+        return bookRepository.findByAuthor(author, pageable)
+                .map(bookMapper::toDto);
     }
 
     @Transactional
@@ -55,11 +54,11 @@ public class BookServiceImpl implements BookService {
         String byIsbnSaved = dto.getIsbn();
         Book byIsbn = bookRepository.findByIsbn(byIsbnSaved).orElse(null);
         if (byIsbn != null) {
-            throw new AppException(messageManager.getMessage("book.already_exists") + byIsbnSaved);
+            throw new AppException(messageSource.getMessage("book.already_exists", new Object[0], LocaleContextHolder.getLocale()));
         }
-        Book book = serviceMapper.toEntity(dto);
+        Book book = bookMapper.toEntity(dto);
         Book created = bookRepository.save(book);
-        return serviceMapper.toDto(created);
+        return bookMapper.toDto(created);
     }
 
     @Transactional
@@ -69,11 +68,11 @@ public class BookServiceImpl implements BookService {
         String isbnSaved = dto.getIsbn();
         Book byIsbn = bookRepository.findByIsbn(isbnSaved).orElse(null);
         if (byIsbn != null && !byIsbn.getId().equals(dto.getId())) {
-            throw new UpdateFailedException(messageManager.getMessage("book.alreadyExists") + isbnSaved);
+            throw new UpdateFailedException(messageSource.getMessage("book.alreadyExists", new Object[0], LocaleContextHolder.getLocale()));
         }
-        Book book = serviceMapper.toEntity(dto);
+        Book book = bookMapper.toEntity(dto);
         Book updated = bookRepository.save(book);
-        return serviceMapper.toDto(updated);
+        return bookMapper.toDto(updated);
     }
 
     @Transactional
@@ -82,7 +81,7 @@ public class BookServiceImpl implements BookService {
         log.debug("Calling delete");
         boolean deleted = bookRepository.existsById(id);
         if (!deleted) {
-            throw new NotFoundException(messageManager.getMessage("book.not_found_delete") + id);
+            throw new NotFoundException(messageSource.getMessage("book.not_found_delete", new Object[0], LocaleContextHolder.getLocale()));
         }
         bookRepository.deleteById(id);
     }
@@ -90,7 +89,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public Page<BookDto> getSearchBooks(String searchMessage, Pageable pageable) {
         log.debug("Calling getAll");
-        return bookRepository.findAllByTitle(searchMessage, pageable).map(serviceMapper::toDto);
+        return bookRepository.findAllByTitle(searchMessage, pageable).map(bookMapper::toDto);
 
     }
 }
