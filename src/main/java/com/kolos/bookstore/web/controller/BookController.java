@@ -3,14 +3,15 @@ package com.kolos.bookstore.web.controller;
 import com.kolos.bookstore.service.BookService;
 import com.kolos.bookstore.service.dto.BookDto;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -31,16 +32,13 @@ public class BookController {
     }
 
     @GetMapping("/getAll")
-    public String getAllBooks(
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "page_size", defaultValue = "5") int pageSize,
-            Model model) {
-        Sort sort = Sort.by(Sort.Direction.ASC, "id");
-        Pageable pageable = PageRequest.of(page, pageSize, sort);
+    public String getAllBooks(Model model, Pageable pageable) {
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "id"));
         Page<BookDto> pages = bookService.getAll(pageable);
-        addAttribute(model, pages);
+        addAttribute(model, pageable, pages);
         return "book/books";
     }
+
 
     @GetMapping("/create")
     public String createFormBook() {
@@ -48,9 +46,13 @@ public class BookController {
     }
 
     @PostMapping("/create")
-    public String createBook(@ModelAttribute BookDto bookDto, Model model) {
+    public String createBook(@ModelAttribute @Valid BookDto bookDto, BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            return "book/bookCreateForm";
+        }
+
         BookDto createdBook = bookService.create(bookDto);
-        model.addAttribute("book", createdBook);
+        model.addAttribute("bookDto", createdBook);
         return "redirect:/books/" + createdBook.getId();
     }
 
@@ -74,13 +76,10 @@ public class BookController {
     }
 
     @GetMapping("/search_title")
-    public String getBookByTitle(@RequestParam String title, Model model,
-                                 @RequestParam(value = "page", defaultValue = "1") int page,
-                                 @RequestParam(value = "page_size", defaultValue = "5") int pageSize) {
-        Sort sort = Sort.by(Sort.Direction.ASC, "id");
-        Pageable pageable = PageRequest.of(page, pageSize, sort);
+    public String getBookByTitle(@RequestParam String title, Model model, Pageable pageable) {
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "id"));
         Page<BookDto> pages = bookService.getSearchBooks(title, pageable);
-        addAttribute(model, pages);
+        addAttribute(model, pageable, pages);
         return "book/booksSearch";
     }
 
@@ -92,13 +91,26 @@ public class BookController {
             session.setAttribute("cart", cart);
         }
         BookDto bookDto = bookService.get(id);
-        cart.merge(bookDto, quantity, Integer::sum);
+        if (cart.containsKey(bookDto)) {
+            Integer existingQuantity = cart.get(bookDto);
+            cart.put(bookDto, existingQuantity + quantity);
+        } else {
+            cart.put(bookDto, quantity);
+        }
+
         return "redirect:/books/getAll";
     }
 
-    private static void addAttribute(Model model, Page<BookDto> pages) {
+    @ModelAttribute()
+    public BookDto newBook() {
+        return new BookDto();
+    }
+
+
+    private static void addAttribute(Model model, Pageable pageable, Page<BookDto> pages) {
         model.addAttribute("books", pages.getContent());
         model.addAttribute("page", pages.getNumber());
         model.addAttribute("totalPages", pages.getTotalPages());
+        model.addAttribute("size", pageable.getPageSize());
     }
 }

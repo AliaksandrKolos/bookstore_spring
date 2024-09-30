@@ -33,25 +33,18 @@ public class OrderController {
     }
 
     @GetMapping("/getAll")
-    public String getAll(
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "page_size", defaultValue = "5") int pageSize,
-            Model model) {
-        Sort sort = Sort.by(Sort.Direction.ASC, "id");
-        Pageable pageable = PageRequest.of(page, pageSize, sort);
+    public String getAll(Model model, Pageable pageable) {
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "id"));
         Page<OrderDto> pages = orderService.getAll(pageable);
-        addAttribute(model, pages);
+        addAttribute(model, pageable, pages);
         return "order/orders";
     }
 
     @GetMapping("/orders_user/{id}")
-    public String getOrdersUser(@PathVariable Long id, Model model,
-                                @RequestParam(value = "page", defaultValue = "1") int page,
-                                @RequestParam(value = "page_size", defaultValue = "5") int pageSize) {
-        Sort sort = Sort.by(Sort.Direction.ASC, "id");
-        Pageable pageable = PageRequest.of(page, pageSize, sort);
+    public String getOrdersUser(@PathVariable Long id, Model model, Pageable pageable) {
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "id"));
         Page<OrderDto> pages = orderService.getOrdersByUserId(id, pageable);
-        addAttribute(model, pages);
+        addAttribute(model, pageable, pages);
         return "order/ordersUser";
     }
 
@@ -123,10 +116,10 @@ public class OrderController {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-
-    private static void addAttribute(Model model, Page<OrderDto> pages) {
+    private static void addAttribute(Model model, Pageable pageable, Page<OrderDto> pages) {
         model.addAttribute("orders", pages.getContent());
         model.addAttribute("page", pages.getNumber());
         model.addAttribute("totalPages", pages.getTotalPages());
+        model.addAttribute("size", pageable.getPageSize());
     }
 }
