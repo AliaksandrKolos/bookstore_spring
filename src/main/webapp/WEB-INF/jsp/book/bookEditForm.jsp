@@ -1,46 +1,52 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<c:if test="${sessionScope.lang != null}">
-    <fmt:setBundle basename="messages"/>
-    <fmt:setLocale value="${sessionScope.lang}"/>
-</c:if>
-<c:if test="${sessionScope.lang =='ru'}">
-    <fmt:setBundle basename="messages_ru"/>
-    <fmt:setLocale value="ru"/>
-</c:if>
-<c:if test="${sessionScope.lang =='de'}">
-    <fmt:setBundle basename="messages_de"/>
-    <fmt:setLocale value="de"/>
-</c:if>
+<%@taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <html>
 <head>
-    <title><fmt:message key="bookEditForm.title"/></title>
+    <title><spring:message code="bookEditForm.title"/></title>
     <link rel="stylesheet" type="text/css" href="/css/style.css">
 
 </head>
 <body>
 <jsp:include page="../navbar.jsp"/>
 
-<h1><fmt:message key="bookEditForm.header"/></h1>
+<h1><spring:message code="bookEditForm.header"/></h1>
 <form method="post" action="${pageContext.request.contextPath}/books/edit/${book.id}">
-    <input type="text" placeholder="<fmt:message key="bookEditForm.title"/>" name="title" value="<c:out value="${book.title}"/>">
-    <input type="text" placeholder="<fmt:message key="bookEditForm.author"/>" name="author" value="<c:out value="${book.author}"/>">
-    <input type="text" placeholder="<fmt:message key="bookEditForm.isbn"/>" name="isbn" value="<c:out value="${book.isbn}"/>">
-    <input type="text" placeholder="<fmt:message key="bookEditForm.genre"/>" name="genre" value="<c:out value="${book.genre}"/>">
-    <input type="number" placeholder="<fmt:message key="bookEditForm.year"/>" name="year" value="<c:out value="${book.year}"/>">
-    <input type="number"  placeholder="<fmt:message key="bookEditForm.pages"/>" name="pages" value="<c:out value="${book.pages}"/>">
-    <input name="price" type="text" placeholder="<fmt:message key="bookEditForm.price"/>" pattern="\d+(\.\d+)?" title="price" required value="<c:out value="${book.price}"/>">
-    <select id="cover" name="cover">
-        <option value="PAPERBACK"><fmt:message key="bookEditForm.type_cover_1"/></option>
-        <option value="HARDCOVER"><fmt:message key="bookEditForm.type_cover_2"/></option>
-        <option value="LEATHER"><fmt:message key="bookEditForm.type_cover_3"/></option>
-        <option value="DUST_JACKET"><fmt:message key="bookEditForm.type_cover_4"/></option>
-    </select>
-    <button type="submit" class="btn"><fmt:message key="bookEditForm.button_edit"/></button>
+    <label for="title"><spring:message code="bookEditForm.title"/></label>
+    <input type="text" name="title" id="title" value="<c:out value="${book.title}"/>">
 
+    <label for="author"><spring:message code="bookEditForm.author"/></label>
+    <input type="text" name="author" id="author" value="<c:out value="${book.author}"/>">
+
+    <label for="isbn"><spring:message code="bookEditForm.isbn"/></label>
+    <input type="text" name="isbn" id="isbn" value="<c:out value="${book.isbn}"/>">
+
+    <label for="genre"><spring:message code="bookEditForm.genre"/></label>
+    <input type="text" name="genre" id="genre" value="<c:out value="${book.genre}"/>">
+
+    <label for="year"><spring:message code="bookEditForm.year"/></label>
+    <input type="number" name="year" id="year" value="<c:out value="${book.year}"/>">
+
+    <label for="pages"><spring:message code="bookEditForm.pages"/></label>
+    <input type="number" name="pages" id="pages" value="<c:out value="${book.pages}"/>">
+
+    <label for="price"><spring:message code="bookEditForm.price"/></label>
+    <input name="price" type="text" id="price" pattern="\d+(\.\d+)?" title="price" required value="<c:out value="${book.price}"/>">
+
+    <select id="cover" name="cover">
+        <option value="PAPERBACK"><spring:message code="bookEditForm.type_cover_1"/></option>
+        <option value="HARDCOVER"><spring:message code="bookEditForm.type_cover_2"/></option>
+        <option value="LEATHER"><spring:message code="bookEditForm.type_cover_3"/></option>
+        <option value="DUST_JACKET"><spring:message code="bookEditForm.type_cover_4"/></option>
+    </select>
+
+    <button type="submit" class="btn"><spring:message code="bookEditForm.button_edit"/></button>
 </form>
+
+
+
+
 </body>
 </html>
 

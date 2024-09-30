@@ -31,9 +31,7 @@ public class LoginController {
 
     @GetMapping("/logOut")
     public String logout(HttpSession session, Model model) {
-        String lang = (String) session.getAttribute("lang");
         session.invalidate();
-        model.addAttribute("lang", lang);
         return "redirect:/";
     }
 

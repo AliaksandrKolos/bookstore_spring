@@ -1,32 +1,21 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<c:if test="${sessionScope.lang != null}">
-    <fmt:setBundle basename="messages"/>
-    <fmt:setLocale value="${sessionScope.lang}"/>
-</c:if>
-<c:if test="${sessionScope.lang =='ru'}">
-    <fmt:setBundle basename="messages_ru"/>
-    <fmt:setLocale value="ru"/>
-</c:if>
-<c:if test="${sessionScope.lang =='de'}">
-    <fmt:setBundle basename="messages_de"/>
-    <fmt:setLocale value="de"/>
-</c:if>
+<%@taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+
 <html>
 <head>
-    <title><fmt:message key="login_form.title"/></title>
+    <title><spring:message code="login_form.title"/></title>
     <link rel="stylesheet" type="text/css" href="css/style.css">
 
 </head>
 <body>
 <jsp:include page="navbar.jsp"/>
 
-<h1><fmt:message key="login_form.header"/></h1>
+<h1><spring:message code="login_form.header"/></h1>
 <form method="post" action=login>
-    <input type="text" placeholder="<fmt:message key="login_form.email"/>" name="email">
-    <input type="password" placeholder="<fmt:message key="login_form.password"/>" name="password">
-    <button type="submit" class="btn"><fmt:message key="login_form.login"/></button>
+    <input type="text" placeholder="<spring:message code="login_form.email"/>" name="email">
+    <input type="password" placeholder="<spring:message code="login_form.password"/>" name="password">
+    <button type="submit" class="btn"><spring:message code="login_form.login"/></button>
 
     <c:if test="${not empty dataError}">
         <p><c:out value="${dataError}"/></p>

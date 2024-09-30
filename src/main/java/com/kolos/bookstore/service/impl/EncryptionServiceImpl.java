@@ -1,12 +1,12 @@
 package com.kolos.bookstore.service.impl;
 
 
-import com.kolos.bookstore.service.DigestService;
+import com.kolos.bookstore.service.EncryptionService;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
 @Service
-public class DigestServiceImpl implements DigestService {
+public class EncryptionServiceImpl implements EncryptionService {
 
     @Override
     public String hash(String input) {

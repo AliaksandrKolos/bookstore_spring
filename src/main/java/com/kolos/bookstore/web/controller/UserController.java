@@ -3,14 +3,15 @@ package com.kolos.bookstore.web.controller;
 import com.kolos.bookstore.service.UserService;
 import com.kolos.bookstore.service.dto.UserDto;
 import com.kolos.bookstore.service.dto.UserRegistrationDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -22,18 +23,12 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/getAll")
-    public String getUsers(
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "page_size", defaultValue = "5") int pageSize,
-            Model model) {
-        Sort sort = Sort.by(Sort.Direction.ASC, "id");
-        Pageable pageable = PageRequest.of(page, pageSize, sort);
+    public String getUsers(Model model, Pageable pageable) {
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC,"id"));
         Page<UserDto> pages = userService.getAll(pageable);
-        addAttribute(model, pages);
+        addAttribute(model, pageable, pages);
         return "user/users";
     }
-
-
 
     @GetMapping("/{id}")
     public String getUser(@PathVariable Long id, Model model) {
@@ -48,17 +43,18 @@ public class UserController {
         return "redirect:/users/getAll";
     }
 
-
     @GetMapping("/create")
     public String createFormUser() {
         return "user/userRegistrationForm";
     }
 
     @PostMapping("/create")
-    @ResponseStatus(HttpStatus.CREATED)
-    public String createUser(@ModelAttribute UserDto userDto, Model model) {
+    public String createUser(@ModelAttribute @Valid UserDto userDto, BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            return "user/userRegistrationForm";
+        }
         UserDto createdUser = userService.create(userDto);
-        model.addAttribute("user", createdUser);
+        model.addAttribute("userDto", createdUser);
         return "redirect:users/" + createdUser.getId();
     }
 
@@ -88,21 +84,22 @@ public class UserController {
     }
 
     @GetMapping("/search_lastName")
-    public String searchByLastNameUser(@RequestParam String lastName, Model model,
-                                       @RequestParam(value = "page", defaultValue = "1") int page,
-                                       @RequestParam(value = "page_size", defaultValue = "5") int pageSize) {
-        Sort sort = Sort.by(Sort.Direction.ASC, "id");
-        Pageable pageable = PageRequest.of(page, pageSize, sort);
+    public String searchByLastNameUser(@RequestParam String lastName, Model model, Pageable pageable) {
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC,"id"));
         Page<UserDto> pages = userService.getByLastName(lastName, pageable);
-        addAttribute(model, pages);
+        addAttribute(model, pageable, pages);
         return "user/usersSearch";
     }
 
-    private static void addAttribute(Model model, Page<UserDto> pages) {
+    @ModelAttribute
+    public UserDto newUser() {
+        return new UserDto();
+    }
+
+    private static void addAttribute(Model model, Pageable pageable, Page<UserDto> pages) {
         model.addAttribute("users", pages.getContent());
         model.addAttribute("page", pages.getNumber());
         model.addAttribute("totalPages", pages.getTotalPages());
+        model.addAttribute("size", pageable.getPageSize());
     }
-
-
 }

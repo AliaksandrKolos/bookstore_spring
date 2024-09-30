@@ -1,37 +1,25 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<c:if test="${sessionScope.lang != null}">
-    <fmt:setBundle basename="messages"/>
-    <fmt:setLocale value="${sessionScope.lang}"/>
-</c:if>
-<c:if test="${sessionScope.lang =='ru'}">
-    <fmt:setBundle basename="messages_ru"/>
-    <fmt:setLocale value="ru"/>
-</c:if>
-<c:if test="${sessionScope.lang =='de'}">
-    <fmt:setBundle basename="messages_de"/>
-    <fmt:setLocale value="de"/>
-</c:if>
+<%@taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <html>
 <head>
     <link rel="stylesheet" type="text/css" href="/css/style.css">
-    <title><fmt:message key="orderConfirmation.title"/></title>
+    <title><spring:message code="orderConfirmation.title"/></title>
 </head>
 <body>
 <jsp:include page="../navbar.jsp"/>
 
-<h1><fmt:message key="orderConfirmation.header"/></h1>
+<h1><spring:message code="orderConfirmation.header"/></h1>
 
-<p><fmt:message key="orderConfirmation.you_order"/> <c:out value="${order.id}"/>.</p>
+<p><spring:message code="orderConfirmation.you_order"/> <c:out value="${order.id}"/>.</p>
 
-<h2><fmt:message key="orderConfirmation.order_details"/></h2>
+<h2><spring:message code="orderConfirmation.order_details"/></h2>
 <table>
     <tr>
-        <th><fmt:message key="orderConfirmation.book_title"/></th>
-        <th><fmt:message key="orderConfirmation.quantity"/></th>
-        <th><fmt:message key="orderConfirmation.price"/></th>
-        <th><fmt:message key="orderConfirmation.total"/></th>
+        <th><spring:message code="orderConfirmation.book_title"/></th>
+        <th><spring:message code="orderConfirmation.quantity"/></th>
+        <th><spring:message code="orderConfirmation.price"/></th>
+        <th><spring:message code="orderConfirmation.total"/></th>
     </tr>
     <c:forEach var="item" items="${order.items}">
         <tr>
@@ -42,7 +30,7 @@
         </tr>
     </c:forEach>
     <tr>
-        <td colspan="3" style="text-align:right;"><strong><fmt:message key="orderConfirmation.total_cost"/></strong></td>
+        <td colspan="3" style="text-align:right;"><strong><spring:message code="orderConfirmation.total_cost"/></strong></td>
         <td><strong><c:out value="${order.cost}"/></strong></td>
     </tr>
 </table>

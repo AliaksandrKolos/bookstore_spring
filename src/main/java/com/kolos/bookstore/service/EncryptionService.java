@@ -1,6 +1,6 @@
 package com.kolos.bookstore.service;
 
-public interface DigestService {
+public interface EncryptionService {
 
     String hash(String input);
 

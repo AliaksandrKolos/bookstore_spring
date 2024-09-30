@@ -1,5 +1,6 @@
 package com.kolos.bookstore.service.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -9,6 +10,7 @@ public class BookDto {
 
     private Long id;
     private String author;
+    @NotBlank(message = "Field cannot be empty")
     private String isbn;
     private String title;
     private String genre;
