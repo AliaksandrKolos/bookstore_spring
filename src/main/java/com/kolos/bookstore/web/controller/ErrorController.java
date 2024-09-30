@@ -55,7 +55,7 @@ public class ErrorController {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleUpdateFailedException(Exception e, RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute("dataError", "Error occurred while processing your request.");
-        return "redirect:/error";
+        return "error";
     }
 
 
