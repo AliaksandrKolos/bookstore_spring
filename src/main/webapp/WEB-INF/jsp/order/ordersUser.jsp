@@ -1,22 +1,11 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<c:if test="${sessionScope.lang != null}">
-    <fmt:setBundle basename="messages"/>
-    <fmt:setLocale value="${sessionScope.lang}"/>
-</c:if>
-<c:if test="${sessionScope.lang =='ru'}">
-    <fmt:setBundle basename="messages_ru"/>
-    <fmt:setLocale value="ru"/>
-</c:if>
-<c:if test="${sessionScope.lang =='de'}">
-    <fmt:setBundle basename="messages_de"/>
-    <fmt:setLocale value="de"/>
-</c:if>
+<%@taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+
 <!DOCTYPE html>
 <html>
 <head>
-    <title><fmt:message key="ordersUser.title"/></title>
+    <title><spring:message code="ordersUser.title"/></title>
     <link rel="stylesheet" type="text/css" href="/css/style.css">
 </head>
 <body>
@@ -31,22 +20,22 @@
 </c:if>
 
 <div class="pagination">
-    <a href="${pageContext.request.contextPath}/orders/orders_user/${sessionScope.user.id}?page=0&page_size=${param.page_size}">
-        <fmt:message key="orders.first"/>
+    <a href="${pageContext.request.contextPath}/orders/orders_user/${sessionScope.user.id}?page=0&size=${param.size}">
+        <spring:message code="orders.first"/>
     </a>
 
-    <a href="${pageContext.request.contextPath}/orders/orders_user/${sessionScope.user.id}?page=${page <= 0 ? 0 : page - 1}&page_size=${param.page_size}">
-        <fmt:message key="orders.prev"/>
+    <a href="${pageContext.request.contextPath}/orders/orders_user/${sessionScope.user.id}?page=${page <= 0 ? 0 : page - 1}&size=${param.size}">
+        <spring:message code="orders.prev"/>
     </a>
 
     <span class="current-page"><c:out value="${page + 1}"/></span>
 
-    <a href="${pageContext.request.contextPath}/orders/orders_user/${sessionScope.user.id}?page=${page < totalPages - 1 ? page + 1 : totalPages - 1}&page_size=${param.page_size}">
-        <fmt:message key="orders.next"/>
+    <a href="${pageContext.request.contextPath}/orders/orders_user/${sessionScope.user.id}?page=${page < totalPages - 1 ? page + 1 : totalPages - 1}&size=${param.size}">
+        <spring:message code="orders.next"/>
     </a>
 
-    <a href="${pageContext.request.contextPath}/orders/orders_user/${sessionScope.user.id}?page=${totalPages - 1}&page_size=${param.page_size}">
-        <fmt:message key="orders.last"/>
+    <a href="${pageContext.request.contextPath}/orders/orders_user/${sessionScope.user.id}?page=${totalPages - 1}&size=${param.size}">
+        <spring:message code="orders.last"/>
     </a>
 </div>
 
@@ -55,10 +44,10 @@
 <table>
     <tr>
         <th>#</th>
-        <th><fmt:message key="ordersUser.id"/></th>
-        <th><fmt:message key="ordersUser.status"/></th>
-        <th><fmt:message key="ordersUser.total_cost"/></th>
-        <th><fmt:message key="ordersUser.action"/></th>
+        <th><spring:message code="ordersUser.id"/></th>
+        <th><spring:message code="ordersUser.status"/></th>
+        <th><spring:message code="ordersUser.total_cost"/></th>
+        <th><spring:message code="ordersUser.action"/></th>
     </tr>
     <c:forEach items="${orders}" var="order" varStatus="counter">
         <tr>
@@ -69,7 +58,7 @@
             <c:if test="${order.status.name() != 'CANCELLED'}">
                 <td>
                     <form method="post" action="<c:url value='/orders/cancelOrder/${order.id}'/>">
-                        <input type="submit" value="<fmt:message key="ordersUser.order_cancel"/>">
+                        <input type="submit" value="<spring:message code="ordersUser.order_cancel"/>">
                     </form>
                 </td>
             </c:if>

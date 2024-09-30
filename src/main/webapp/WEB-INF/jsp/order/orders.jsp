@@ -1,23 +1,12 @@
 <%@page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
-<c:if test="${sessionScope.lang != null}">
-    <fmt:setBundle basename="messages"/>
-    <fmt:setLocale value="${sessionScope.lang}"/>
-</c:if>
-<c:if test="${sessionScope.lang =='ru'}">
-    <fmt:setBundle basename="messages_ru"/>
-    <fmt:setLocale value="ru"/>
-</c:if>
-<c:if test="${sessionScope.lang =='de'}">
-    <fmt:setBundle basename="messages_de"/>
-    <fmt:setLocale value="de"/>
-</c:if>
+<%@taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+
 <!DOCTYPE html>
 <html >
 <head>
     <meta charset="UTF-8">
-    <title><fmt:message key="orders.title"/></title>
+    <title><spring:message code="orders.title"/></title>
     <link rel="stylesheet" type="text/css" href="/css/style.css">
 </head>
 <body>
@@ -26,34 +15,35 @@
 <h1>${orders.size() > 0 ? 'Your orders:' : 'No orders yet'}</h1>
 
 <div class="pagination">
-    <a href="${pageContext.request.contextPath}/orders/getAll?page=0&page_size=${param.page_size}">
-        <fmt:message key="orders.first"/>
+    <a href="${pageContext.request.contextPath}/orders/getAll?page=0&size=${param.size}">
+        <spring:message code="orders.first"/>
     </a>
 
-    <a href="${pageContext.request.contextPath}/orders/getAll?page=${page <= 0 ? 0 : page - 1}&page_size=${param.page_size}">
-        <fmt:message key="orders.prev"/>
+    <a href="${pageContext.request.contextPath}/orders/getAll?page=${page <= 0 ? 0 : page - 1}&size=${param.size}">
+        <spring:message code="orders.prev"/>
     </a>
 
     <span class="current-page"><c:out value="${page + 1}"/></span>
 
-    <a href="${pageContext.request.contextPath}/orders/getAll?page=${page < totalPages - 1 ? page + 1 : totalPages - 1}&page_size=${param.page_size}">
-        <fmt:message key="orders.next"/>
+    <a href="${pageContext.request.contextPath}/orders/getAll?page=${page < totalPages - 1 ? page + 1 : totalPages - 1}&size=${param.size}">
+        <spring:message code="orders.next"/>
     </a>
 
-    <a href="${pageContext.request.contextPath}/orders/getAll?page=${totalPages - 1}&page_size=${param.page_size}">
-        <fmt:message key="orders.last"/>
+    <a href="${pageContext.request.contextPath}/orders/getAll?page=${totalPages - 1}&size=${param.size}">
+        <spring:message code="orders.last"/>
     </a>
 </div>
+
 
 
 <table>
     <thead>
     <tr>
         <th>#</th>
-        <th><fmt:message key="orders.id"/></th>
-        <th><fmt:message key="orders.status"/></th>
-        <th><fmt:message key="orders.user_email"/></th>
-        <th><fmt:message key="orders.total_cost"/></th>
+        <th><spring:message code="orders.id"/></th>
+        <th><spring:message code="orders.status"/></th>
+        <th><spring:message code="orders.user_email"/></th>
+        <th><spring:message code="orders.total_cost"/></th>
     </tr>
     </thead>
     <tbody>
