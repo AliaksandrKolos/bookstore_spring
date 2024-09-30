@@ -2,16 +2,17 @@ package com.kolos.bookstore.service.impl;
 
 import com.kolos.bookstore.data.entity.User;
 import com.kolos.bookstore.data.repository.UserRepository;
-import com.kolos.bookstore.service.DigestService;
-import com.kolos.bookstore.service.ServiceMapper;
+import com.kolos.bookstore.service.EncryptionService;
+import com.kolos.bookstore.service.UserMapper;
 import com.kolos.bookstore.service.UserService;
 import com.kolos.bookstore.service.dto.UserDto;
 import com.kolos.bookstore.service.dto.UserRegistrationDto;
 import com.kolos.bookstore.service.exception.*;
-import com.kolos.bookstore.service.util.MessageManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,58 +23,57 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final DigestService digestService;
-    private final ServiceMapper serviceMapper;
-    private final MessageManager messageManager;
+    private final EncryptionService encryptionService;
+    private final UserMapper userMapper;
+    private final MessageSource messageSource;
 
     @Transactional
     @Override
     public UserDto registration(UserRegistrationDto userRegistrationDto) {
         log.info("UserRegistrationDto: {}", userRegistrationDto);
         validation(userRegistrationDto);
-        User user = serviceMapper.toEntityRegistrationUser(userRegistrationDto);
+        User user = userMapper.toEntityRegistrationUser(userRegistrationDto);
         user.setRole(User.Role.USER);
         User userRegistration = userRepository.save(user);
         log.debug("Calling create {}", userRegistration);
-        return serviceMapper.toDtoRegistrationUser(user);
+        return userMapper.toDtoRegistrationUser(user);
     }
 
 
     @Override
     public UserDto get(Long id) {
         log.debug("Calling getById {}", id);
-        User user = userRepository.findById(id).orElse(null);
-        if (user == null) {
-            throw new NotFoundException(messageManager.getMessage("user.notFoundUser") + id);
-        }
-        return serviceMapper.toDto(user);
+        User user = userRepository.findById(id).orElseThrow(() ->
+                new NotFoundException(messageSource.getMessage("user.notFoundUser", new Object[0], LocaleContextHolder.getLocale())));
+        return userMapper.toDto(user);
     }
 
     @Override
     public Page<UserDto> getAll(Pageable pageable) {
         log.debug("Colling getAll");
-        return userRepository.findAll(pageable).map(serviceMapper::toDto);
+        return userRepository.findAll(pageable)
+                .map(userMapper::toDto);
     }
 
     @Override
     public Page<UserDto> getByLastName(String lastName, Pageable pageable) {
         log.debug("Calling getByLastName {}", lastName);
-        return userRepository.findAllByLastName(lastName, pageable).map(serviceMapper::toDto);
+        return userRepository.findAllByLastName(lastName, pageable)
+                .map(userMapper::toDto);
     }
 
     @Transactional
     @Override
     public UserDto create(UserDto dto) {
-        log.debug("Calling create");
         String emailToBeSaved = dto.getEmail();
         User byEmail = userRepository.findByEmail(emailToBeSaved).orElse(null);
         if (byEmail != null) {
-            throw new UserInputValidationException(messageManager.getMessage("user.emailExists") + emailToBeSaved);
+            throw new UserInputValidationException(messageSource.getMessage("user.emailExists", new Object[0], LocaleContextHolder.getLocale()));
         }
-        User user = serviceMapper.toEntity(dto);
-        user.setPassword(digestService.hash(dto.getPassword()));
+        User user = userMapper.toEntity(dto);
+        user.setPassword(encryptionService.hash(dto.getPassword()));
         User created = userRepository.save(user);
-        return serviceMapper.toDto(created);
+        return userMapper.toDto(created);
     }
 
     @Transactional
@@ -82,13 +82,13 @@ public class UserServiceImpl implements UserService {
         String emailToBeSaved = dto.getEmail();
         User byEmail = userRepository.findByEmail(emailToBeSaved).orElse(null);
         if (byEmail != null && !byEmail.getId().equals(dto.getId())) {
-            throw new UpdateFailedException(messageManager.getMessage("user.emailExists") + emailToBeSaved);
+            throw new UpdateFailedException(messageSource.getMessage("user.emailExists", new Object[0], LocaleContextHolder.getLocale()));
         }
         log.debug("Calling update");
-        User user = serviceMapper.toEntity(dto);
-        user.setPassword(digestService.hash(dto.getPassword()));
+        User user = userMapper.toEntity(dto);
+        user.setPassword(encryptionService.hash(dto.getPassword()));
         User updated = userRepository.save(user);
-        return serviceMapper.toDto(updated);
+        return userMapper.toDto(updated);
     }
 
     @Transactional
@@ -97,7 +97,7 @@ public class UserServiceImpl implements UserService {
         log.debug("Calling delete");
         boolean deleted = userRepository.existsById(id);
         if (!deleted) {
-            throw new AppException(messageManager.getMessage("user.couldntDelete") + id);
+            throw new AppException(messageSource.getMessage("user.couldntDelete", new Object[0], LocaleContextHolder.getLocale()));
         }
         userRepository.deleteById(id);
     }
@@ -106,7 +106,7 @@ public class UserServiceImpl implements UserService {
     public UserDto getByEmail(String email) {
         log.debug("Calling getByEmail {}", email);
         User user = userRepository.findByEmail(email).orElse(null);
-        return serviceMapper.toDto(user);
+        return userMapper.toDto(user);
     }
 
     @Transactional
@@ -114,10 +114,10 @@ public class UserServiceImpl implements UserService {
     public UserDto login(String email, String password) {
         log.debug("Calling login {}", email);
         User user = userRepository.findByEmail(email).orElse(null);
-        if (user == null || !digestService.verify(password, user.getPassword())) {
-            throw new AuthenticationFailedException(messageManager.getMessage("user.notPasAndEmail"));
+        if (user == null || !encryptionService.verify(password, user.getPassword())) {
+            throw new AuthenticationFailedException(messageSource.getMessage("user.notPasAndEmail", new Object[0], LocaleContextHolder.getLocale()));
         }
-        return serviceMapper.toDto(user);
+        return userMapper.toDto(user);
     }
 
 
@@ -125,7 +125,7 @@ public class UserServiceImpl implements UserService {
         String emailToBeSaved = userRegistrationDto.getEmail();
         User byEmail = userRepository.findByEmail(emailToBeSaved).orElse(null);
         if (byEmail != null) {
-            throw new UserInputValidationException(messageManager.getMessage("user.emailAlreadyInUse"));
+            throw new UserInputValidationException(messageSource.getMessage("user.emailAlreadyInUse", new Object[0], LocaleContextHolder.getLocale()));
         }
     }
 }
