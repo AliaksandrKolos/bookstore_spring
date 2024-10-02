@@ -34,6 +34,7 @@ public class UserServiceImpl implements UserService {
         validation(userRegistrationDto);
         User user = userMapper.toEntityRegistrationUser(userRegistrationDto);
         user.setRole(User.Role.USER);
+        user.setPassword(encryptionService.hash(userRegistrationDto.getPassword()));
         User userRegistration = userRepository.save(user);
         log.debug("Calling create {}", userRegistration);
         return userMapper.toDtoRegistrationUser(user);

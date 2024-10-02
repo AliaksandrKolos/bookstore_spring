@@ -52,7 +52,7 @@
             </c:if>
             <c:if test="${sessionScope.user == null}">
                 <td>
-                    <form method="post" action="login">
+                    <form method="post" action="/login">
                         <input type="submit" value="<spring:message code="cart.create_order"/>">
                     </form>
                 </td>

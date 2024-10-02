@@ -1,4 +1,4 @@
-package com.kolos.bookstore.web.controller;
+package com.kolos.bookstore.web.view;
 
 import com.kolos.bookstore.service.UserService;
 import com.kolos.bookstore.service.dto.UserDto;
@@ -30,7 +30,7 @@ public class LoginController {
     }
 
     @GetMapping("/logOut")
-    public String logout(HttpSession session, Model model) {
+    public String logout(HttpSession session) {
         session.invalidate();
         return "redirect:/";
     }
