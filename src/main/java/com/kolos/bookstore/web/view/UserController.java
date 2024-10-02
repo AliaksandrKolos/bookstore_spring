@@ -1,4 +1,4 @@
-package com.kolos.bookstore.web.controller;
+package com.kolos.bookstore.web.view;
 
 import com.kolos.bookstore.service.UserService;
 import com.kolos.bookstore.service.dto.UserDto;
@@ -85,7 +85,7 @@ public class UserController {
 
     @GetMapping("/search_lastName")
     public String searchByLastNameUser(@RequestParam String lastName, Model model, Pageable pageable) {
-        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC,"id"));
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "id"));
         Page<UserDto> pages = userService.getByLastName(lastName, pageable);
         addAttribute(model, pageable, pages);
         return "user/usersSearch";

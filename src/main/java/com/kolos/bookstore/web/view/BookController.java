@@ -1,4 +1,4 @@
-package com.kolos.bookstore.web.controller;
+package com.kolos.bookstore.web.view;
 
 import com.kolos.bookstore.service.BookService;
 import com.kolos.bookstore.service.dto.BookDto;
