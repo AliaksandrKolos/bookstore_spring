@@ -6,6 +6,7 @@ import com.kolos.bookstore.data.repository.OrderRepository;
 import com.kolos.bookstore.service.OrderMapper;
 import com.kolos.bookstore.service.OrderService;
 import com.kolos.bookstore.service.dto.OrderDto;
+import com.kolos.bookstore.service.dto.OrderItemDto;
 import com.kolos.bookstore.service.dto.OrderStatusUpdateDto;
 import com.kolos.bookstore.service.exception.InvalidOrderStatusTransitionException;
 import com.kolos.bookstore.service.exception.NotFoundException;
@@ -18,6 +19,9 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -49,7 +53,10 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderDto create(OrderDto dto) {
+        BigDecimal totalCost = calculateTotalCost(dto.getItems());
+        dto.setCost(totalCost);
         Order order = orderMapper.toEntity(dto);
+        order.setStatus(Order.Status.PENDING);
         order.setUser(manager.merge(order.getUser()));
         Order savedOrder = orderRepository.save(order);
         return orderMapper.toDto(savedOrder);
@@ -109,5 +116,11 @@ public class OrderServiceImpl implements OrderService {
                 throw new InvalidOrderStatusTransitionException(messageSource.getMessage("order.invalid_status_transition_delivered", new Object[0], LocaleContextHolder.getLocale()));
             }
         }
+    }
+
+    public BigDecimal calculateTotalCost(List<OrderItemDto> items) {
+        return items.stream()
+                .map(item -> item.getBook().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }
