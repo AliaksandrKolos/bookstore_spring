@@ -10,7 +10,7 @@ public class OrderDto {
     private Long id;
     private UserDto user;
     private BigDecimal cost;
-    private Status status = Status.PENDING;
+    private Status status;
     private List<OrderItemDto> items;
 
     public enum Status {

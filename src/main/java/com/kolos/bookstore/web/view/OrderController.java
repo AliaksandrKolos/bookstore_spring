@@ -1,4 +1,4 @@
-package com.kolos.bookstore.web.controller;
+package com.kolos.bookstore.web.view;
 
 import com.kolos.bookstore.service.OrderService;
 import com.kolos.bookstore.service.dto.*;
@@ -13,10 +13,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Controller
@@ -65,9 +64,6 @@ public class OrderController {
     public String createOrder(@SessionAttribute("cart") Map<BookDto, Integer> cart,
                               @SessionAttribute("user") UserDto user,
                               HttpSession session, Model model) {
-        if (cart == null || cart.isEmpty()) {
-            return "redirect:/cart";
-        }
         OrderDto orderDto = createOrder(cart, user);
         OrderDto createdOrder = saveOrder(session, orderDto);
         session.removeAttribute("cart");
@@ -85,35 +81,25 @@ public class OrderController {
     private static OrderDto createOrder(Map<BookDto, Integer> cart, UserDto user) {
         OrderDto orderDto = new OrderDto();
         orderDto.setUser(user);
-        orderDto.setCost(getTotalCost(cart));
-
         List<OrderItemDto> items = getOrderItemDtos(cart);
         orderDto.setItems(items);
         return orderDto;
     }
 
     private static List<OrderItemDto> getOrderItemDtos(Map<BookDto, Integer> cart) {
-        return cart.entrySet().stream()
-                .map(entry -> {
-                    BookDto bookDto = entry.getKey();
-                    Integer quantity = entry.getValue();
-                    OrderItemDto itemDto = new OrderItemDto();
-                    itemDto.setBook(bookDto);
-                    itemDto.setQuantity(quantity);
-                    itemDto.setPrice(bookDto.getPrice());
-                    return itemDto;
-                })
-                .collect(Collectors.toList());
-    }
+        List<OrderItemDto> orderItems = new ArrayList<>();
+        for (BookDto bookDto : cart.keySet()) {
+            Integer quantity = cart.get(bookDto);
 
-    private static BigDecimal getTotalCost(Map<BookDto, Integer> cart) {
-        return cart.entrySet().stream()
-                .map(entry -> {
-                    BookDto bookDto = entry.getKey();
-                    Integer quantity = entry.getValue();
-                    return bookDto.getPrice().multiply(BigDecimal.valueOf(quantity));
-                })
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            OrderItemDto itemDto = new OrderItemDto();
+            itemDto.setBook(bookDto);
+            itemDto.setQuantity(quantity);
+            itemDto.setPrice(bookDto.getPrice());
+
+            orderItems.add(itemDto);
+        }
+
+        return orderItems;
     }
 
     private static void addAttribute(Model model, Pageable pageable, Page<OrderDto> pages) {

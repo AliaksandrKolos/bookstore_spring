@@ -1,4 +1,4 @@
-package com.kolos.bookstore.web.controller;
+package com.kolos.bookstore.web.errorHandler;
 
 import com.kolos.bookstore.service.exception.*;
 import org.springframework.http.HttpStatus;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@ControllerAdvice
+@ControllerAdvice("com.kolos.bookstore.web.view")
 public class ErrorController {
 
     @GetMapping("/error")
@@ -57,8 +57,6 @@ public class ErrorController {
         redirectAttributes.addFlashAttribute("dataError", "Error occurred while processing your request.");
         return "error";
     }
-
-
 
 
 }

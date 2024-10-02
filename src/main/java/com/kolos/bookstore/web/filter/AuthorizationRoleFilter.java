@@ -21,7 +21,12 @@ public class AuthorizationRoleFilter extends HttpFilter {
 
         String command = req.getRequestURI();
 
-        if (command != null && CommandSecurityList.INSTANCE.isRestricted(command)) {
+        if (command.startsWith("/api")) {
+            chain.doFilter(req, res);
+            return;
+        }
+
+        if (CommandSecurityList.INSTANCE.isRestricted(command)) {
             HttpSession session = req.getSession();
 
             if (session == null || session.getAttribute("user") == null) {
@@ -37,8 +42,8 @@ public class AuthorizationRoleFilter extends HttpFilter {
             }
         }
 
-
         chain.doFilter(req, res);
     }
+
 }
 

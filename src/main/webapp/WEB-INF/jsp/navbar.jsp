@@ -27,11 +27,11 @@
                     <li><a href="${pageContext.request.contextPath}/books/create"><spring:message code="navbar.add_book"/></a></li>
                     <li><a href="${pageContext.request.contextPath}/orders/getAll?page=0&size=5"><spring:message code="navbar.all_orders"/></a></li>
                 </c:if>
-                <li><a href="${pageContext.request.contextPath}/cart"><spring:message code="navbar.cart"/></a></li>
                 <li><a href="${pageContext.request.contextPath}/orders/orders_user/${sessionScope.user.id}?page=0&size=5"><spring:message code="navbar.my_order"/></a></li>
             </c:otherwise>
         </c:choose>
         <li><a href="${pageContext.request.contextPath}/books/getAll?page=0&size=5"><spring:message code="navbar.all_books"/></a></li>
+        <li><a href="${pageContext.request.contextPath}/cart"><spring:message code="navbar.cart"/></a></li>
         <form id="languageForm" method="get" action="${pageContext.request.contextPath}/changeLanguage">
             <select name="lang" onchange="document.getElementById('languageForm').submit()">
                 <option value="en" ${sessionScope.lang == 'en' ? 'selected' : ''}>English</option>
@@ -39,8 +39,6 @@
                 <option value="de" ${sessionScope.lang == 'de' ? 'selected' : ''}>Deutsch</option>
             </select>
         </form>
-
-
     </ul>
 </header>
 </body>

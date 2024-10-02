@@ -31,7 +31,7 @@ public class BookstoreApplication implements WebMvcConfigurer {
         registry.addInterceptor(authenticationInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns("/", "/books/getAll", "/books/{id:\\d+}", "/login",
-                        "/users/registration", "/cart", "/books/addToCart",
+                        "/users/registration", "/cart", "/books/addCart",
                         "/changeLanguage", "/books/search_title");
         registry.addInterceptor(localeChangeInterceptor())
                 .addPathPatterns("/**");
