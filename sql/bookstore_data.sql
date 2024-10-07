@@ -59,9 +59,9 @@ VALUES ('ADMIN'),
 
 
 INSERT INTO users (first_name, last_name, email, password, role_id)
-VALUES ('Bob', 'Kolos', 'admin', '$2a$12$fJNdClE5PKtx7EzHclDmK.al0h/faeRL.Rtnr7bHgzxJCNNE/sQpG', (SELECT id FROM roles WHERE role_name = 'ADMIN')),
-       ('Sam', 'Smith', 'manager', '$2a$12$qUnBy8ltopCR4EtfYJfwOOlHHY8lSc45yKTnfdbuk6hF5NnPLtvMS', (SELECT id FROM roles WHERE role_name = 'MANAGER')),
-       ('Michael', 'Johnson', 'user', '$2a$12$4Z9IobzWJS.I3W31Iz9zf.5Ur8GNwv8dx5D0nPYwZd1PqQPsegyFm', (SELECT id FROM roles WHERE role_name = 'USER')),
+VALUES ('Bob', 'Kolos', 'admin', '$2a$10$F5yHCHB03pg9HvDMdhzNFezZPliL8DPn.SrN6BUS6PkdPHMGMlxpK', (SELECT id FROM roles WHERE role_name = 'ADMIN')),
+       ('Sam', 'Smith', 'manager', '$2a$10$apVDSLKMbcHNCw96n6lQyOcyN5rzkUpznni.u6KMBIePLaZxiPxnm', (SELECT id FROM roles WHERE role_name = 'MANAGER')),
+       ('Michael', 'Johnson', 'user', '$2a$10$V2E7Me71IleVB4nZuSGUz.OcqG27Ze2r6inthfS6j4HSMGyrBBHOa', (SELECT id FROM roles WHERE role_name = 'USER')),
        ('Alice', 'Brown', 'alice.brown1@example.com', 'FF37A98A9963D347E9749A5C1B3936A4A245A6FF', (SELECT id FROM roles WHERE role_name = 'ADMIN')),
        ('Charlie', 'Davis', 'charlie.davis1@example.com', '91DFD9DDB4198AFFC5C194CD8CE6D338FDE470E2', (SELECT id FROM roles WHERE role_name = 'MANAGER')),
        ('Eve', 'Wilson', 'eve.wilson1@example.com', 'EEE36A0F470074E37D6A545FBA4AAD0EF5F32413', (SELECT id FROM roles WHERE role_name = 'USER')),

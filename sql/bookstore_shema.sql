@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS users
     first_name VARCHAR(70),
     last_name  VARCHAR(70),
     email      VARCHAR(255) NOT NULL,
-    password   VARCHAR(60)  NOT NULL,
+    password   VARCHAR(128)  NOT NULL,
     role_id    INTEGER,
     deleted    BOOLEAN  DEFAULT FALSE,
     FOREIGN KEY (role_id) REFERENCES roles (id)
