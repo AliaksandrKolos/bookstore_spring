@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -39,6 +40,7 @@ public class BookRestController {
         return bookService.getSearchBooks(title, pageable);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     @PostMapping
     public ResponseEntity<BookDto> create(@RequestBody @Valid BookDto bookDto, BindingResult errors) {
         checkErrors(errors);
@@ -46,6 +48,7 @@ public class BookRestController {
         return buildResponseCreated(created);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     @PutMapping("/{id}")
     public BookDto update(@PathVariable Long id, @RequestBody @Valid BookDto bookDto, BindingResult errors) {
         checkErrors(errors);
@@ -53,6 +56,7 @@ public class BookRestController {
         return bookService.update(bookDto);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         bookService.delete(id);

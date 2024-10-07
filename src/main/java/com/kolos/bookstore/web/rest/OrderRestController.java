@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -25,26 +26,31 @@ public class OrderRestController {
 
     private final OrderService orderService;
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','USER')")
     @GetMapping("/{id}")
     public OrderDto get(@PathVariable Long id) {
         return orderService.get(id);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     @GetMapping
     public Page<OrderDto> getAll(Pageable pageable) {
         return orderService.getAll(pageable);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','USER')")
     @GetMapping("/orders_user/{id}")
     public Page<OrderDto> getOrderByUserId(@PathVariable Long id, Pageable pageable) {
         return orderService.getOrdersByUserId(id, pageable);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','USER')")
     @PatchMapping("/{id}")
     public void cancelOrder(@PathVariable Long id) {
         orderService.cancelOrder(id);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     @PutMapping("/{id}")
     public void changeStatus(@PathVariable Long id, @RequestBody OrderStatusUpdateDto orderStatusUpdateDto) {
         orderStatusUpdateDto.setId(id);

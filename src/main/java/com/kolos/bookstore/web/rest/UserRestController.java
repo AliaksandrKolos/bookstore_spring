@@ -6,10 +6,13 @@ import com.kolos.bookstore.service.dto.UserRegistrationDto;
 import com.kolos.bookstore.service.exception.ValidationException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -24,27 +27,31 @@ public class UserRestController {
 
     private final UserService userService;
 
+
     @GetMapping("/{id}")
     public UserDto get(@PathVariable Long id) {
         return userService.get(id);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     @GetMapping
     public Page<UserDto> getAll(Pageable pageable) {
         return userService.getAll(pageable);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     @GetMapping("/search_lastName")
     public Page<UserDto> searchLastName(@RequestParam String lastName, Pageable pageable) {
         return userService.getByLastName(lastName, pageable);
     }
 
-
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         userService.delete(id);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PutMapping("/{id}")
     public UserDto update(@PathVariable Long id, @RequestBody @Valid UserDto userDto, BindingResult errors) {
         checkErrors(errors);
@@ -52,12 +59,14 @@ public class UserRestController {
         return userService.update(userDto);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PostMapping
     public ResponseEntity<UserDto> create(@RequestBody @Validated UserDto userDto, BindingResult errors) {
         checkErrors(errors);
         UserDto created = userService.create(userDto);
         return buildResponseCreated(created);
     }
+
 
     @PostMapping("/registration")
     public ResponseEntity<UserDto> registration(@RequestBody @Valid UserRegistrationDto registrationDto, BindingResult errors) {
