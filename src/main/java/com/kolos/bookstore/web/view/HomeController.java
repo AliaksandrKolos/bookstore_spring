@@ -13,13 +13,11 @@ public class HomeController {
         return "home";
     }
 
-
     @GetMapping("/changeLanguage")
-    public String changeLanguage(@RequestParam(required = false) String lang, HttpSession session) {
+    public String changeLanguage(@RequestParam String lang, HttpSession session) {
         session.setAttribute("lang", lang);
         return "redirect:/";
     }
-
 
     @GetMapping("/cart")
     public String cart() {

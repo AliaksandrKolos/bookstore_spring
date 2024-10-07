@@ -1,7 +1,9 @@
 package com.kolos.bookstore.web.errorHandler;
 
 import com.kolos.bookstore.service.exception.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -30,7 +32,7 @@ public class ErrorController {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String handleNotFoundException(NotFoundException e, Model model) {
         model.addAttribute("dataError", e.getMessage());
-        return "NotFoundError";
+        return "notFoundError";
     }
 
     @ExceptionHandler(AuthenticationFailedException.class)
@@ -50,14 +52,6 @@ public class ErrorController {
         redirectAttributes.addFlashAttribute("dataError", e.getMessage());
         return "redirect:/error";
     }
-
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public String handleUpdateFailedException(Exception e, RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute("dataError", "Error occurred while processing your request.");
-        return "error";
-    }
-
 
 }
 
