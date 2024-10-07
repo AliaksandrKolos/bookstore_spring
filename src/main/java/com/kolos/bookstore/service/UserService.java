@@ -24,6 +24,4 @@ public interface UserService {
 
     Page<UserDto> getByLastName(String lastName, Pageable pageable);
 
-    UserDto login(String email, String password);
-
 }
