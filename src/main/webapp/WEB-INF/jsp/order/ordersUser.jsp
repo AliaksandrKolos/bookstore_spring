@@ -58,6 +58,7 @@
             <c:if test="${order.status.name() != 'CANCELLED'}">
                 <td>
                     <form method="post" action="<c:url value='/orders/cancelOrder/${order.id}'/>">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
                         <input type="submit" value="<spring:message code="ordersUser.order_cancel"/>">
                     </form>
                 </td>

@@ -56,6 +56,7 @@
             <td><c:out value="${order.cost}"/></td>
             <td>
                 <form action="${pageContext.request.contextPath}/orders/change_status" method="post">
+                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
                     <input type="hidden" name="id" value="${order.id}"/>
                     <select name="status" onchange="this.form.submit()">
                         <option value="">Select Status</option>

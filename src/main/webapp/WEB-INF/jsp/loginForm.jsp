@@ -5,24 +5,26 @@
 <html>
 <head>
     <title><spring:message code="login_form.title"/></title>
-    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
 
 </head>
 <body>
-<jsp:include page="navbar.jsp"/>
+
 
 <h1><spring:message code="login_form.header"/></h1>
-<form method="post" action=login>
-    <input type="text" placeholder="<spring:message code="login_form.email"/>" name="email">
+<jsp:include page="navbar.jsp"/>
+<c:if test="${param.error != null}">
+    <p style="color: red">Invalid data</p>
+</c:if>
+<c:if test="${param.logout != null}">
+    <p style="color:#4a7610;">Successfully logged out</p>
+</c:if>
+
+<form method="post" action="${pageContext.request.contextPath}/login">
+    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+    <input type="text" placeholder="<spring:message code="login_form.email"/>" name="username">
     <input type="password" placeholder="<spring:message code="login_form.password"/>" name="password">
     <button type="submit" class="btn"><spring:message code="login_form.login"/></button>
-
-    <c:if test="${not empty dataError}">
-        <p><c:out value="${dataError}"/></p>
-    </c:if>
-
-
-
 </form>
 </body>
 </html>

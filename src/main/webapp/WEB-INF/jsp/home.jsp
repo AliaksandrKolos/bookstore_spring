@@ -4,7 +4,7 @@
 
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="../css/style.css">
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
     <title><spring:message code="index.title"/></title>
 </head>
 <body>

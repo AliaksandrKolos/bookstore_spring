@@ -14,6 +14,7 @@
 <h1><spring:message code="userEditForm.header"/></h1>
 
 <form method="post" action="${pageContext.request.contextPath}/users/edit/${user.id}">
+    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
     <input type="text" placeholder="<spring:message code='userEditForm.firstName'/>" name="firstName" value="${user.firstName}">
     <input type="text" placeholder="<spring:message code='userEditForm.lastName'/>" name="lastName" value="${user.lastName}">
     <input type="text" placeholder="<spring:message code='userEditForm.email'/>" name="email" value="${user.email}">

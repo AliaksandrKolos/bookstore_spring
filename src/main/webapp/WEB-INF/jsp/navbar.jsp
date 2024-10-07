@@ -20,7 +20,12 @@
             </c:when>
             <c:otherwise>
                 <li><a href="${pageContext.request.contextPath}/"><spring:message code="navbar.home"/></a></li>
-                <li><a href="${pageContext.request.contextPath}/logOut"><spring:message code="navbar.log_out"/></a></li>
+                <form method="post" action="${pageContext.request.contextPath}/logout" style="display: inline;">
+                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                    <button type="submit" class="btn-link">
+                        <spring:message code="navbar.log_out"/>
+                    </button>
+                </form>
 
                 <c:if test="${sessionScope.user.role == 'ADMIN' || sessionScope.user.role == 'MANAGER'}">
                     <li><a href="${pageContext.request.contextPath}/users/getAll?page=0&size=5"><spring:message code="navbar.users"/></a></li>
@@ -32,6 +37,7 @@
         </c:choose>
         <li><a href="${pageContext.request.contextPath}/books/getAll?page=0&size=5"><spring:message code="navbar.all_books"/></a></li>
         <li><a href="${pageContext.request.contextPath}/cart"><spring:message code="navbar.cart"/></a></li>
+
         <form id="languageForm" method="get" action="${pageContext.request.contextPath}/changeLanguage">
             <select name="lang" onchange="document.getElementById('languageForm').submit()">
                 <option value="en" ${sessionScope.lang == 'en' ? 'selected' : ''}>English</option>
