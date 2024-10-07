@@ -4,6 +4,7 @@ package com.kolos.bookstore.data.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Objects;
 
@@ -37,8 +38,13 @@ public class User {
     @Column(name = "role_id")
     private Role role;
 
-    public enum Role {
-        USER, MANAGER, ADMIN
+    public enum Role implements GrantedAuthority {
+        USER, MANAGER, ADMIN;
+
+        @Override
+        public String getAuthority() {
+            return name();
+        }
     }
 
     @Override

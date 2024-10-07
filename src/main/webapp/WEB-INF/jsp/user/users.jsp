@@ -68,6 +68,7 @@
                 <td><a href="${pageContext.request.contextPath}/users/edit/${user.id}"><spring:message code="users.edit"/></a></td>
                 <td>
                     <form method="post" action="${pageContext.request.contextPath}/users/delete/${user.id}">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
                         <input type="submit" value="<spring:message code='users.delete'/>"/>
                     </form>
                 </td>

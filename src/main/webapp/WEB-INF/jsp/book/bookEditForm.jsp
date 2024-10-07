@@ -13,6 +13,7 @@
 
 <h1><spring:message code="bookEditForm.header"/></h1>
 <form method="post" action="${pageContext.request.contextPath}/books/edit/${book.id}">
+    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
     <label for="title"><spring:message code="bookEditForm.title"/></label>
     <input type="text" name="title" id="title" value="<c:out value="${book.title}"/>">
 

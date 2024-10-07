@@ -73,6 +73,7 @@
                     <td><a href="${pageContext.request.contextPath}/books/edit/${book.id}">Edit</a></td>
                     <td>
                         <form method="post" action="${pageContext.request.contextPath}/books/delete/${book.id}">
+                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
                             <input type="submit" value="<spring:message code='books.button_delete'/>">
                         </form>
                     </td>

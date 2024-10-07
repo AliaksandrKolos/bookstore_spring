@@ -66,6 +66,7 @@
                 <td><c:out value="${book.author}"/></td>
                 <td>
                     <form method="post" action="${pageContext.request.contextPath}/books/addCart" class="form-inline">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
                         <input type="hidden" name="bookId" value="<c:out value="${book.id}"/>">
                         <input type="number" name="quantity" value="1" min="1">
                         <input type="submit" value="<spring:message code='books.add_cart'/>">
@@ -75,6 +76,7 @@
                     <td><a href="${pageContext.request.contextPath}/books/edit/${book.id}">Edit</a></td>
                     <td>
                         <form method="post" action="${pageContext.request.contextPath}/books/delete/${book.id}">
+                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
                             <input type="submit" value="<spring:message code='books.button_delete'/>">
                         </form>
                     </td>

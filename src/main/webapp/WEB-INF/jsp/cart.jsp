@@ -4,7 +4,7 @@
 
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="../css/style.css">
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
     <title><spring:message code="cart.title"/></title>
 </head>
 <body>
@@ -46,13 +46,15 @@
             <c:if test="${sessionScope.user != null}">
                 <td>
                     <form method="post" action="orders/order/create">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
                         <input type="submit" value="<spring:message code="cart.create_order"/>">
                     </form>
                 </td>
             </c:if>
             <c:if test="${sessionScope.user == null}">
                 <td>
-                    <form method="post" action="/login">
+                    <form method="post" action="${pageContext.request.contextPath}/login">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
                         <input type="submit" value="<spring:message code="cart.create_order"/>">
                     </form>
                 </td>

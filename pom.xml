@@ -32,7 +32,7 @@
         <jakarta.servlet.jsp.jstl-api.version>3.0.0</jakarta.servlet.jsp.jstl-api.version>
         <jakarta.servlet.jsp.jstl.version>3.0.1</jakarta.servlet.jsp.jstl.version>
         <tomcat-embed-jasper.version>10.1.30</tomcat-embed-jasper.version>
-        <jbcrypt.version>0.4</jbcrypt.version>
+        <mapstruct.version>1.6.2</mapstruct.version>
     </properties>
 
     <dependencies>
@@ -47,6 +47,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
         <dependency>
@@ -79,12 +84,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.mindrot</groupId>
-            <artifactId>jbcrypt</artifactId>
-            <version>${jbcrypt.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>jakarta.servlet.jsp.jstl</groupId>
             <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
             <version>${jakarta.servlet.jsp.jstl-api.version}</version>
@@ -99,16 +98,14 @@
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
-            <version>1.6.2</version>
+            <version>${mapstruct.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct-processor</artifactId>
-            <version>1.6.2</version>
+            <version>${mapstruct.version}</version>
         </dependency>
-
-
 
     </dependencies>
 
@@ -132,5 +129,21 @@
 
 
 </project>
+
+<!--        // REST URL PERMIT ALL-->
+<!--        //                        .requestMatchers(HttpMethod.GET, "/api/books","/api/books/{id:\\d+}","/api/books/search_title").permitAll()-->
+<!--        //                        .requestMatchers(HttpMethod.POST, "/api/users/registration").permitAll()-->
+
+<!--        // REST URL (GET)-->
+<!--        //                        .requestMatchers(HttpMethod.GET, "/api/orders/orders_user/{id:\\d+}", "/api/orders/{id:\\d+}", "/api/users/{id:\\d+}")-->
+<!--        //                        .hasAnyAuthority(USER.getAuthority(), MANAGER.getAuthority(), ADMIN.getAuthority())-->
+<!--        //                        .requestMatchers(HttpMethod.GET, "/api/orders", "/api/users", "/api/users/search_lastName")-->
+<!--        //                        .hasAnyAuthority(MANAGER.getAuthority(), ADMIN.getAuthority())-->
+<!--        //-->
+<!--        //                        // REST URL (POST, PATCH, PUT)-->
+<!--        //                        .requestMatchers(HttpMethod.POST, "/api/books").hasAnyAuthority(MANAGER.getAuthority(), ADMIN.getAuthority())-->
+<!--        //                        .requestMatchers(HttpMethod.PATCH, "/api/orders/{id:\\d+}").hasAnyAuthority(USER.getAuthority(), MANAGER.getAuthority(), ADMIN.getAuthority())-->
+<!--        //                        .requestMatchers(HttpMethod.PUT, "/api/orders/{id:\\d+}", "/api/books/{id:\\d+}", "/api/users/{id:\\d+}")-->
+<!--        //                        .hasAnyAuthority(MANAGER.getAuthority(), ADMIN.getAuthority())-->
 
 
