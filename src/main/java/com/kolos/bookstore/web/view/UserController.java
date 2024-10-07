@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -22,6 +23,7 @@ public class UserController {
 
     private final UserService userService;
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     @GetMapping("/getAll")
     public String getUsers(Model model, Pageable pageable) {
         pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC,"id"));
@@ -30,6 +32,7 @@ public class UserController {
         return "user/users";
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','USER')")
     @GetMapping("/{id}")
     public String getUser(@PathVariable Long id, Model model) {
         UserDto userDto = userService.get(id);
@@ -37,17 +40,20 @@ public class UserController {
         return "user/user";
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PostMapping("/delete/{id}")
     public String deleteUser(@PathVariable Long id) {
         userService.delete(id);
         return "redirect:/users/getAll";
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping("/create")
     public String createFormUser() {
         return "user/userRegistrationForm";
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PostMapping("/create")
     public String createUser(@ModelAttribute @Valid UserDto userDto, BindingResult result, Model model) {
         if (result.hasErrors()) {
@@ -70,6 +76,7 @@ public class UserController {
         return "redirect:/";
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping("/edit/{id}")
     public String editUserForm(@PathVariable Long id, Model model) {
         UserDto userDto = userService.get(id);
@@ -77,6 +84,7 @@ public class UserController {
         return "user/userEditForm";
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PostMapping("/edit/{id}")
     public String editUser(@ModelAttribute UserDto userDto) {
         UserDto editedUser = userService.update(userDto);
