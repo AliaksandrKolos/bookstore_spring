@@ -21,7 +21,7 @@ public class UserPrincipal implements UserDetails {
     private Role role;
 
     public enum Role {
-        USER, MANAGER, ADMIN;
+        USER, MANAGER, ADMIN
     }
 
     public UserPrincipal(User user) {

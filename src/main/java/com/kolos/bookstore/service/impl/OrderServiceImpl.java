@@ -31,7 +31,7 @@ public class OrderServiceImpl implements OrderService {
     private final MessageSource messageSource;
     private final OrderMapper orderMapper;
     @PersistenceContext
-    private EntityManager manager;
+    private final EntityManager manager;
 
 
     @Override
