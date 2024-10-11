@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS books
 (
     id       BIGSERIAL PRIMARY KEY,
     author   VARCHAR(200),
-    isbn     VARCHAR(13) NOT NULL,
+    isbn     VARCHAR(50) NOT NULL,
     title    VARCHAR(255),
     genre    VARCHAR(255),
     year     INTEGER,
