@@ -10,7 +10,6 @@ import com.kolos.bookstore.service.exception.NotFoundException;
 import com.kolos.bookstore.service.exception.UpdateFailedException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
@@ -18,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 
-@Slf4j
 @RequiredArgsConstructor
 @Service
 public class BookServiceImpl implements BookService {
@@ -30,7 +28,6 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookDto get(Long id) {
-        log.debug("Calling getById {}", id);
         Book book = bookRepository.findById(id).
                 orElseThrow(() -> new NotFoundException(messageSource.getMessage("book.not_found", new Object[0], LocaleContextHolder.getLocale())));
         return bookMapper.toDto(book);
@@ -38,7 +35,6 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Page<BookDto> getAll(Pageable pageable) {
-        log.debug("Calling getAll");
         return bookRepository.findAll(pageable).map(bookMapper::toDtoShort);
     }
 
@@ -64,7 +60,6 @@ public class BookServiceImpl implements BookService {
     @Transactional
     @Override
     public BookDto update(BookDto dto) {
-        log.debug("Calling update");
         String isbnSaved = dto.getIsbn();
         Book byIsbn = bookRepository.findByIsbn(isbnSaved).orElse(null);
         if (byIsbn != null && !byIsbn.getId().equals(dto.getId())) {
@@ -78,7 +73,6 @@ public class BookServiceImpl implements BookService {
     @Transactional
     @Override
     public void delete(Long id) {
-        log.debug("Calling delete");
         boolean deleted = bookRepository.existsById(id);
         if (!deleted) {
             throw new NotFoundException(messageSource.getMessage("book.not_found_delete", new Object[0], LocaleContextHolder.getLocale()));
@@ -88,8 +82,8 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Page<BookDto> getSearchBooks(String searchMessage, Pageable pageable) {
-        log.debug("Calling getAll");
-        return bookRepository.findAllByTitle(searchMessage, pageable).map(bookMapper::toDto);
+        return bookRepository.findAllByTitle(searchMessage, pageable)
+                .map(bookMapper::toDto);
 
     }
 }

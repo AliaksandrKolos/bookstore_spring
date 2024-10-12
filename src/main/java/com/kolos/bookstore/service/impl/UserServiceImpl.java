@@ -12,7 +12,6 @@ import com.kolos.bookstore.service.exception.UpdateFailedException;
 import com.kolos.bookstore.service.exception.UserInputValidationException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
@@ -21,7 +20,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
@@ -33,7 +31,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public UserDto registration(UserRegistrationDto userRegistrationDto) {
-        log.info("UserRegistrationDto: {}", userRegistrationDto);
         validation(userRegistrationDto);
         User user = userMapper.toEntityRegistrationUser(userRegistrationDto);
         user.setRole(User.Role.USER);
@@ -44,7 +41,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto get(Long id) {
-        log.debug("Calling getById {}", id);
         User user = userRepository.findById(id).orElseThrow(() ->
                 new NotFoundException(messageSource.getMessage("user.notFoundUser", new Object[0], LocaleContextHolder.getLocale())));
         return userMapper.toDto(user);
@@ -52,14 +48,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page<UserDto> getAll(Pageable pageable) {
-        log.debug("Colling getAll");
         return userRepository.findAll(pageable)
                 .map(userMapper::toDto);
     }
 
     @Override
     public Page<UserDto> getByLastName(String lastName, Pageable pageable) {
-        log.debug("Calling getByLastName {}", lastName);
         return userRepository.findAllByLastName(lastName, pageable)
                 .map(userMapper::toDto);
     }
@@ -86,7 +80,6 @@ public class UserServiceImpl implements UserService {
         if (byEmail != null && !byEmail.getId().equals(dto.getId())) {
             throw new UpdateFailedException(messageSource.getMessage("user.emailExists", new Object[0], LocaleContextHolder.getLocale()));
         }
-        log.debug("Calling update");
         User user = userMapper.toEntity(dto);
         user.setPassword(bCryptPasswordEncoder.encode(dto.getPassword()));
         User updated = userRepository.save(user);
@@ -96,7 +89,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void delete(Long id) {
-        log.debug("Calling delete");
         boolean deleted = userRepository.existsById(id);
         if (!deleted) {
             throw new AppException(messageSource.getMessage("user.couldntDelete", new Object[0], LocaleContextHolder.getLocale()));
@@ -106,7 +98,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getByEmail(String email) {
-        log.debug("Calling getByEmail {}", email);
         User user = userRepository.findByEmail(email).orElse(null);
         return userMapper.toDto(user);
     }

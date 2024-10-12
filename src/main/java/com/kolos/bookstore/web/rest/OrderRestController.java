@@ -1,8 +1,9 @@
 package com.kolos.bookstore.web.rest;
 
 
-import com.kolos.bookstore.data.entity.Order;
+import com.kolos.bookstore.service.BookService;
 import com.kolos.bookstore.service.OrderService;
+import com.kolos.bookstore.service.UserService;
 import com.kolos.bookstore.service.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -11,13 +12,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -25,6 +24,8 @@ import java.util.stream.Collectors;
 public class OrderRestController {
 
     private final OrderService orderService;
+    private final UserService userService;
+    private final BookService bookService;
 
     @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','USER')")
     @GetMapping("/{id}")
@@ -57,61 +58,41 @@ public class OrderRestController {
         orderService.changeStatus(orderStatusUpdateDto.getId(), orderStatusUpdateDto.getStatus());
     }
 
-//    TODO
-//    @PostMapping
-//    public ResponseEntity<OrderDto> create(@RequestBody CreatedOrderRequest createdOrderRequest) {
-//        OrderDto orderDto =  new OrderDto();
-//        createdOrderDto(createdOrderRequest, orderDto);
-//        OrderDto created = orderService.create(orderDto);
-//        return buildResponseCreated(created);
-//    }
-//
-//
-//    private ResponseEntity<OrderDto> buildResponseCreated(OrderDto created) {
-//        return ResponseEntity.status(HttpStatus.CREATED)
-//                .location(getLocation(created))
-//                .body(created);
-//    }
-//
-//    private URI getLocation(OrderDto orderDto) {
-//        return ServletUriComponentsBuilder.fromCurrentContextPath()
-//                .path("/orders/{id}")
-//                .buildAndExpand(orderDto.getId())
-//                .toUri();
-//    }
-//
-//
-//    private static List<OrderItemDto> getOrderItemDtos(Map<BookDto, Integer> cart) {
-//        List<OrderItemDto> orderItemDtos = new ArrayList<>();
-//        for(BookDto bookDto: cart.keySet()) {
-//            Integer quantity = cart.get(bookDto);
-//            OrderItemDto orderItemDto = new OrderItemDto();
-//            orderItemDto.setQuantity(quantity);
-//            orderItemDto.setBook(bookDto);
-//            orderItemDto.setPrice(bookDto.getPrice());
-//            orderItemDtos.add(orderItemDto);
-//        }
-//        return orderItemDtos;
-//    }
-//
-//
-//    private static void createdOrderDto(CreatedOrderRequest createdOrderRequest, OrderDto orderDto) {
-//        UserDto userDto = createdOrderRequest.getUser();
-//        Map<BookDto, Integer> cart = createdOrderRequest.getCart();
-//        orderDto.setUser(userDto);
-//        List<OrderItemDto> orderItemDtos = getOrderItemDtos(cart);
-//        orderDto.setItems(orderItemDtos);
-//    }
+    @PostMapping
+    public ResponseEntity<OrderDto> createOrder(@RequestBody OrderRequest orderRequest) {
+        UserDto userDto = userService.get(orderRequest.getUserId());
+        OrderDto orderDto = createOrder(orderRequest.getCart(), userDto);
+        OrderDto createdOrder = orderService.create(orderDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
+    }
 
 
+    private OrderDto createOrder(Map<Long, Integer> cart, UserDto user) {
+        OrderDto orderDto = new OrderDto();
+        orderDto.setUser(user);
 
+        List<OrderItemDto> items = getOrderItemDtos(cart);
+        orderDto.setItems(items);
 
+        return orderDto;
+    }
 
+    private List<OrderItemDto> getOrderItemDtos(Map<Long, Integer> cart) {
+        List<OrderItemDto> orderItems = new ArrayList<>();
+        for (Map.Entry<Long, Integer> entry : cart.entrySet()) {
+            Long bookId = entry.getKey();
+            Integer quantity = entry.getValue();
 
+            BookDto bookDto = bookService.get(bookId);
 
+            OrderItemDto itemDto = new OrderItemDto();
+            itemDto.setBook(bookDto);
+            itemDto.setQuantity(quantity);
+            itemDto.setPrice(bookDto.getPrice());
 
+            orderItems.add(itemDto);
+        }
 
-
-
-
+        return orderItems;
+    }
 }

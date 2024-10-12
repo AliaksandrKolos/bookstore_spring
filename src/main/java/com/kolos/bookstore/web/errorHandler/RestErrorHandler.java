@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -53,6 +54,12 @@ public class RestErrorHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ResponseErrorDto> handleException(InvalidOrderStatusTransitionException e) {
         ResponseErrorDto responseErrorDto = new ResponseErrorDto(e.getMessage());
         return new ResponseEntity<>(responseErrorDto, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ResponseErrorDto>handleAccessDeniedException(AccessDeniedException e) {
+        ResponseErrorDto responseErrorDto = new ResponseErrorDto(e.getMessage());
+        return new ResponseEntity<>(responseErrorDto, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler
