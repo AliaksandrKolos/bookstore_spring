@@ -2,7 +2,6 @@ package com.kolos.bookstore.service.impl;
 
 import com.kolos.bookstore.data.entity.User;
 import com.kolos.bookstore.data.repository.UserRepository;
-import com.kolos.bookstore.service.EncryptionService;
 import com.kolos.bookstore.service.UserMapper;
 import com.kolos.bookstore.service.UserService;
 import com.kolos.bookstore.service.dto.UserDto;
@@ -15,6 +14,10 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,9 +26,11 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final EncryptionService encryptionService;
     private final UserMapper userMapper;
     private final MessageSource messageSource;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JWTService jwtService;
 
     @Transactional
     @Override
@@ -34,7 +39,7 @@ public class UserServiceImpl implements UserService {
         validation(userRegistrationDto);
         User user = userMapper.toEntityRegistrationUser(userRegistrationDto);
         user.setRole(User.Role.USER);
-        user.setPassword(encryptionService.hash(userRegistrationDto.getPassword()));
+        user.setPassword(bCryptPasswordEncoder.encode(userRegistrationDto.getPassword()));
         User userRegistration = userRepository.save(user);
         log.debug("Calling create {}", userRegistration);
         return userMapper.toDtoRegistrationUser(user);
@@ -63,6 +68,17 @@ public class UserServiceImpl implements UserService {
                 .map(userMapper::toDto);
     }
 
+    @Override
+    public String verify(UserDto userDto) {
+        Authentication authentication =
+                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userDto.getEmail(), userDto.getPassword()));
+        if (authentication.isAuthenticated()) {
+            return jwtService.generateToken(userDto.getEmail());
+        } else {
+            return "Invalid email or password";
+        }
+    }
+
     @Transactional
     @Override
     public UserDto create(UserDto dto) {
@@ -72,7 +88,7 @@ public class UserServiceImpl implements UserService {
             throw new UserInputValidationException(messageSource.getMessage("user.emailExists", new Object[0], LocaleContextHolder.getLocale()));
         }
         User user = userMapper.toEntity(dto);
-        user.setPassword(encryptionService.hash(dto.getPassword()));
+        user.setPassword(bCryptPasswordEncoder.encode(dto.getPassword()));
         User created = userRepository.save(user);
         return userMapper.toDto(created);
     }
@@ -87,7 +103,7 @@ public class UserServiceImpl implements UserService {
         }
         log.debug("Calling update");
         User user = userMapper.toEntity(dto);
-        user.setPassword(encryptionService.hash(dto.getPassword()));
+        user.setPassword(bCryptPasswordEncoder.encode(dto.getPassword()));
         User updated = userRepository.save(user);
         return userMapper.toDto(updated);
     }
@@ -107,17 +123,6 @@ public class UserServiceImpl implements UserService {
     public UserDto getByEmail(String email) {
         log.debug("Calling getByEmail {}", email);
         User user = userRepository.findByEmail(email).orElse(null);
-        return userMapper.toDto(user);
-    }
-
-    @Transactional
-    @Override
-    public UserDto login(String email, String password) {
-        log.debug("Calling login {}", email);
-        User user = userRepository.findByEmail(email).orElse(null);
-        if (user == null || !encryptionService.verify(password, user.getPassword())) {
-            throw new AuthenticationFailedException(messageSource.getMessage("user.notPasAndEmail", new Object[0], LocaleContextHolder.getLocale()));
-        }
         return userMapper.toDto(user);
     }
 
