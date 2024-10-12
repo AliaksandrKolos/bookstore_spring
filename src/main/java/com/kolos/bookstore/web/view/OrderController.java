@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','USER')")
     public String getOrder(@PathVariable Long id, Model model) {
         OrderDto orderDto = orderService.get(id);
         model.addAttribute("order", orderDto);
@@ -32,6 +34,7 @@ public class OrderController {
     }
 
     @GetMapping("/getAll")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public String getAll(Model model, Pageable pageable) {
         pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "id"));
         Page<OrderDto> pages = orderService.getAll(pageable);
@@ -40,6 +43,7 @@ public class OrderController {
     }
 
     @GetMapping("/orders_user/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','USER')")
     public String getOrdersUser(@PathVariable Long id, Model model, Pageable pageable) {
         pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "id"));
         Page<OrderDto> pages = orderService.getOrdersByUserId(id, pageable);
@@ -48,12 +52,14 @@ public class OrderController {
     }
 
     @PostMapping("/change_status")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public String changeStatusOrder(@ModelAttribute OrderStatusUpdateDto orderStatusUpdateDto) {
         orderService.changeStatus(orderStatusUpdateDto.getId(), orderStatusUpdateDto.getStatus());
         return "redirect:/orders/getAll";
     }
 
     @PostMapping("/cancelOrder/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','USER')")
     public String cancelOrder(@PathVariable Long id) {
         orderService.cancelOrder(id);
         return "redirect:/";
@@ -61,6 +67,7 @@ public class OrderController {
 
     @PostMapping("/order/create")
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','USER')")
     public String createOrder(@SessionAttribute("cart") Map<BookDto, Integer> cart,
                               @SessionAttribute("user") UserDto user,
                               HttpSession session, Model model) {

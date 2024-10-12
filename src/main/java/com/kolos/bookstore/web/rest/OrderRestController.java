@@ -1,22 +1,14 @@
 package com.kolos.bookstore.web.rest;
 
 
-import com.kolos.bookstore.data.entity.Order;
 import com.kolos.bookstore.service.OrderService;
-import com.kolos.bookstore.service.dto.*;
+import com.kolos.bookstore.service.dto.OrderDto;
+import com.kolos.bookstore.service.dto.OrderStatusUpdateDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,26 +18,31 @@ public class OrderRestController {
     private final OrderService orderService;
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','USER')")
     public OrderDto get(@PathVariable Long id) {
         return orderService.get(id);
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public Page<OrderDto> getAll(Pageable pageable) {
         return orderService.getAll(pageable);
     }
 
     @GetMapping("/orders_user/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','USER')")
     public Page<OrderDto> getOrderByUserId(@PathVariable Long id, Pageable pageable) {
         return orderService.getOrdersByUserId(id, pageable);
     }
 
     @PatchMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','USER')")
     public void cancelOrder(@PathVariable Long id) {
         orderService.cancelOrder(id);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public void changeStatus(@PathVariable Long id, @RequestBody OrderStatusUpdateDto orderStatusUpdateDto) {
         orderStatusUpdateDto.setId(id);
         orderService.changeStatus(orderStatusUpdateDto.getId(), orderStatusUpdateDto.getStatus());
@@ -96,16 +93,6 @@ public class OrderRestController {
 //        List<OrderItemDto> orderItemDtos = getOrderItemDtos(cart);
 //        orderDto.setItems(orderItemDtos);
 //    }
-
-
-
-
-
-
-
-
-
-
 
 
 }

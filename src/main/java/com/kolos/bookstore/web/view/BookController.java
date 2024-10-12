@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -41,11 +42,13 @@ public class BookController {
 
 
     @GetMapping("/create")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public String createFormBook() {
         return "book/bookCreateForm";
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public String createBook(@ModelAttribute @Valid BookDto bookDto, BindingResult result, Model model) {
         if (result.hasErrors()) {
             return "book/bookCreateForm";
@@ -57,6 +60,7 @@ public class BookController {
     }
 
     @GetMapping("/edit/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public String editFormBook(@PathVariable Long id, Model model) {
         BookDto bookDto = bookService.get(id);
         model.addAttribute("book", bookDto);
@@ -64,12 +68,14 @@ public class BookController {
     }
 
     @PostMapping("/edit/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public String editBook(@ModelAttribute BookDto bookDto) {
         BookDto bookUpdated = bookService.update(bookDto);
         return "redirect:/books/" + bookUpdated.getId();
     }
 
     @PostMapping("/delete/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public String deleteBook(@PathVariable Long id) {
         bookService.delete(id);
         return "redirect:/books/getAll";

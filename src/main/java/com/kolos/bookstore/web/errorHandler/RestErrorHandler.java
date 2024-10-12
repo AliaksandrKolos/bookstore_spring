@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -37,6 +38,13 @@ public class RestErrorHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(responseErrorDto, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ResponseErrorDto> handleAccessDeniedException(AccessDeniedException e) {
+        ResponseErrorDto responseErrorDto = new ResponseErrorDto("Access denied");
+        return new ResponseEntity<>(responseErrorDto, HttpStatus.FORBIDDEN);
+    }
+
+
     @ExceptionHandler
     public ResponseEntity<ResponseErrorDto> handleException(NotFoundException e) {
         ResponseErrorDto responseErrorDto = new ResponseErrorDto(e.getMessage());
@@ -55,12 +63,12 @@ public class RestErrorHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(responseErrorDto, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler
-    public ResponseEntity<ResponseErrorDto> handleException(Exception e) {
-        ResponseErrorDto responseErrorDto = new ResponseErrorDto(SERVER_ERROR);
-        log.info("Server Error", e);
-        return new ResponseEntity<>(responseErrorDto, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+//    @ExceptionHandler
+//    public ResponseEntity<ResponseErrorDto> handleException(Exception e) {
+//        ResponseErrorDto responseErrorDto = new ResponseErrorDto(SERVER_ERROR);
+//        log.info("Server Error", e);
+//        return new ResponseEntity<>(responseErrorDto, HttpStatus.INTERNAL_SERVER_ERROR);
+//    }
 
     @ExceptionHandler
     public ResponseEntity<ResponseErrorDto> handleException(UserInputValidationException e) {

@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -30,22 +31,25 @@ public class UserRestController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public Page<UserDto> getAll(Pageable pageable) {
         return userService.getAll(pageable);
     }
 
     @GetMapping("/search_lastName")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public Page<UserDto> searchLastName(@RequestParam String lastName, Pageable pageable) {
         return userService.getByLastName(lastName, pageable);
     }
 
-
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public void delete(@PathVariable Long id) {
         userService.delete(id);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public UserDto update(@PathVariable Long id, @RequestBody @Valid UserDto userDto, BindingResult errors) {
         checkErrors(errors);
         userDto.setId(id);
@@ -53,6 +57,7 @@ public class UserRestController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public ResponseEntity<UserDto> create(@RequestBody @Validated UserDto userDto, BindingResult errors) {
         checkErrors(errors);
         UserDto created = userService.create(userDto);
@@ -67,7 +72,6 @@ public class UserRestController {
         UserDto userDto = userService.registration(registrationDto);
         return buildResponseCreated(userDto);
     }
-
 
     private ResponseEntity<UserDto> buildResponseCreated(UserDto created) {
         return ResponseEntity.status(HttpStatus.CREATED)

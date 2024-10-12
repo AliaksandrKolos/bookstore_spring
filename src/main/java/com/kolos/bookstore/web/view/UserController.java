@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -23,6 +24,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/getAll")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public String getUsers(Model model, Pageable pageable) {
         pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC,"id"));
         Page<UserDto> pages = userService.getAll(pageable);
@@ -31,6 +33,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','USER')")
     public String getUser(@PathVariable Long id, Model model) {
         UserDto userDto = userService.get(id);
         model.addAttribute("user", userDto);
@@ -38,17 +41,20 @@ public class UserController {
     }
 
     @PostMapping("/delete/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public String deleteUser(@PathVariable Long id) {
         userService.delete(id);
         return "redirect:/users/getAll";
     }
 
     @GetMapping("/create")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public String createFormUser() {
         return "user/userRegistrationForm";
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public String createUser(@ModelAttribute @Valid UserDto userDto, BindingResult result, Model model) {
         if (result.hasErrors()) {
             return "user/userRegistrationForm";
@@ -71,6 +77,7 @@ public class UserController {
     }
 
     @GetMapping("/edit/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public String editUserForm(@PathVariable Long id, Model model) {
         UserDto userDto = userService.get(id);
         model.addAttribute("user", userDto);
@@ -78,12 +85,14 @@ public class UserController {
     }
 
     @PostMapping("/edit/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public String editUser(@ModelAttribute UserDto userDto) {
         UserDto editedUser = userService.update(userDto);
         return "redirect:/users/" + editedUser.getId();
     }
 
     @GetMapping("/search_lastName")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public String searchByLastNameUser(@RequestParam String lastName, Model model, Pageable pageable) {
         pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "id"));
         Page<UserDto> pages = userService.getByLastName(lastName, pageable);
